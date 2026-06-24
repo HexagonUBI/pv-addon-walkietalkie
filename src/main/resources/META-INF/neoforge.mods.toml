@@ -1,0 +1,36 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "All Rights Reserved"
+
+[[mods]]
+modId = "${mod_id}"
+version = "${mod_version}"
+displayName = "pv-addon-walkietalkie"
+logoFile = "wt-thumbnail.png"
+description = '''
+A Plasmo Voice add-on that adds a walkie-talkie item with selectable frequencies.
+'''
+authors = "SimpleFox_, MrEri"
+
+# --- Minecraft / NeoForge ---
+[[dependencies."${mod_id}"]]
+modId = "neoforge"
+type = "required"
+versionRange = "[${neo_version},)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.1,1.22)"
+ordering = "NONE"
+side = "BOTH"
+
+# --- Plasmo Voice (must load BEFORE us so the addon loader is ready) ---
+[[dependencies."${mod_id}"]]
+modId = "plasmovoice"
+type = "required"
+versionRange = "[${pv_version},)"
+ordering = "AFTER"
+side = "BOTH"

@@ -1,0 +1,17 @@
+{
+  "item.walkietalkie.walkie_talkie": "Рация",
+
+  "tooltip.walkietalkie.frequency": "Частота: %s",
+  "tooltip.walkietalkie.on": "Рация: Включен",
+  "tooltip.walkietalkie.off": "Рация: Выключен",
+
+  "msg.walkietalkie.on": "Рация включена",
+  "msg.walkietalkie.off": "Рация выключена",
+
+  "screen.walkietalkie.title": "Рация",
+  "screen.walkietalkie.frequency": "Радио-частота",
+  "screen.walkietalkie.power": "Рация",
+
+  "activation.walkietalkie.name": "Рация",
+  "source_line.walkietalkie.name": "Рация"
+}

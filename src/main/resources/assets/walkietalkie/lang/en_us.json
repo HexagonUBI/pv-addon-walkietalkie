@@ -1,0 +1,17 @@
+{
+  "item.walkietalkie.walkie_talkie": "Walkie Talkie",
+
+  "tooltip.walkietalkie.frequency": "Frequency: %s",
+  "tooltip.walkietalkie.on": "Radio: ON",
+  "tooltip.walkietalkie.off": "Radio: OFF",
+
+  "msg.walkietalkie.on": "Walkie-talkie turned ON",
+  "msg.walkietalkie.off": "Walkie-talkie turned OFF",
+
+  "screen.walkietalkie.title": "Walkie Talkie",
+  "screen.walkietalkie.frequency": "Frequency",
+  "screen.walkietalkie.power": "Radio",
+
+  "activation.walkietalkie.name": "Walkie Talkie",
+  "source_line.walkietalkie.name": "Walkie Talkie"
+}
