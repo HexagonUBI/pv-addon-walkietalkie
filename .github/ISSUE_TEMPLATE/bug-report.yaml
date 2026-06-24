@@ -1,0 +1,96 @@
+name: "Bug Report"
+description: "Report a bug or crash with the Walkie-Talkie add-on"
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Before you submit
+        Please make sure to check if this issue has already been reported.
+
+  - type: checkboxes
+    id: pre-check
+    attributes:
+      label: Pre-report Checklist
+      options:
+        - label: I have searched the existing issues to ensure this is not a duplicate.
+          required: true
+        - label: I have confirmed Plasmo Voice is installed and up to date.
+          required: true
+
+  - type: input
+    id: mod-version
+    attributes:
+      label: Walkie-Talkie Add-on Version
+      description: "Enter the version number of the add-on you're using."
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: input
+    id: pv-version
+    attributes:
+      label: Plasmo Voice Version
+      description: "Enter the version of Plasmo Voice you have installed."
+      placeholder: "2.1.10"
+    validations:
+      required: true
+
+  - type: input
+    id: mc-version
+    attributes:
+      label: Minecraft / NeoForge Version
+      description: "Enter the Minecraft and NeoForge versions you're running."
+      placeholder: "1.21.1 / NeoForge 21.1.233"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Summary
+      description: "What went wrong? Be as descriptive as possible."
+      placeholder: "I tuned the walkie-talkie to a frequency, and..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: "How can I trigger this bug?"
+      placeholder: "1. Do this...\n2. Then do that..."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Where are you running this?
+      description: "Helps tell apart a standalone bug from a modpack conflict."
+      options:
+        - Standalone (just this add-on + Plasmo Voice)
+        - As part of the Vector Point modpack
+        - As part of another modpack
+        - Other
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: custom-mods
+    attributes:
+      label: Additional Info
+      options:
+        - label: I have other mods installed besides Plasmo Voice
+          required: false
+
+  - type: upload
+    id: latest-log
+    attributes:
+      label: Latest Log File
+      description: |
+        Optionally upload your `/logs/latest.log` file.
+    validations:
+      required: false
+      accept: ".log,.txt"

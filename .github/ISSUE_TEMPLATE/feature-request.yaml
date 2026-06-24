@@ -1,0 +1,54 @@
+name: "Feature Request"
+description: "Suggest a new idea or feature for the Walkie-Talkie add-on"
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Before you submit
+        Please make sure to check if this feature has already been requested.
+
+  - type: checkboxes
+    id: pre-check
+    attributes:
+      label: Pre-request Checklist
+      options:
+        - label: I have searched the existing issues to ensure this is not a duplicate.
+          required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Feature Description
+      description: "What are you suggesting?"
+      placeholder: "I would like to see..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reason
+    attributes:
+      label: Use Case / Reason
+      description: "Why do you think this would be a good addition?"
+      placeholder: "This would help players by..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Additional Details
+      description: "Anything else you want to add? Specific implementation ideas?"
+      placeholder: "Example: I saw this in another add-on and it works like..."
+    validations:
+      required: false
+
+  - type: upload
+    id: media
+    attributes:
+      label: Images or Files
+      description: "Attach any relevant images, screenshots, or mockups."
+    validations:
+      required: false
+      accept: ".png,.jpg,.jpeg,.zip"
