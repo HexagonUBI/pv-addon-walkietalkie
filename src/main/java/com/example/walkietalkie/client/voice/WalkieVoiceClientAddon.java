@@ -28,7 +28,7 @@ import java.util.Optional;
 @Addon(
         id = "wt-addon-client",
         name = "Walkie Talkie (client)",
-        version = "1.0.2",
+        version = "1.0.3",
         authors = {"SimpleFox"}
 )
 public final class WalkieVoiceClientAddon implements AddonInitializer {
