@@ -9,7 +9,7 @@ version = "${mod_version}"
 displayName = "pv-addon-walkietalkie"
 logoFile = "wt-thumbnail.png"
 description = '''
-A Plasmo Voice add-on that adds a walkie-talkie item with selectable frequencies.
+A Plasmo Voice add-on that adds a walkie-talkie item with selectable frequencies. Vanilla & Simple to use.
 '''
 authors = "SimpleFox_, MrEri"
 
