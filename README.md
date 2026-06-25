@@ -37,9 +37,9 @@
 
 # Usage
 
-- Hold or equip the Walkie-Talkie and open its GUI to set a frequency
-- Anyone holding a Walkie-Talkie tuned to the same frequency can hear you, regardless of distance or dimension
-- Keep an eye on the power gauge — a dead Walkie-Talkie won't transmit or receive
+- RMB Tap: Toggle the walkie-talkie
+- RMB Held: Speak in the walkie-talkie
+- Shift+RMB: Configure frequency and toggle walkie-talkie (is a menu)
 
 # Building from Source
 
