@@ -1,5 +1,5 @@
 {
-  "item.walkietalkie.walkie_talkie": "Walkie Talkie",
+  "item.walkietalkie.walkie_talkie": "Analog Walkie Talkie",
 
   "tooltip.walkietalkie.frequency": "Frequency: %s",
   "tooltip.walkietalkie.on": "Radio: ON",
