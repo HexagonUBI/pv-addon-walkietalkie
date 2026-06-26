@@ -1,8 +1,6 @@
 <div align=center>
 
-# Tune In. Talk Out.
-
-## A Plasmo Voice Add-on that adds Walkie-Talkie to Minecraft. Vanilla & Simple to use.
+<img alt="banner01" src="https://github.com/SimpleFoxOfficial/pv-addon-walkietalkie/blob/main/.github/ImagesStuff/walkietalkie_banner1.png?raw=true">
 
 ![NeoForge](https://img.shields.io/badge/NeoForge-21.1.233-d8b62b?style=plastic&logo=curseforge&logoColor=white)
 ![Minecraft](https://img.shields.io/badge/Minecraft-1.21.1-3aa343?style=plastic&logo=minecraft&logoColor=white)
