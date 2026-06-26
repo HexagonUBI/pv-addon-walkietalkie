@@ -20,11 +20,18 @@
 
 ---
 
-# Features
+<img alt="banner01" src="https://github.com/SimpleFoxOfficial/pv-addon-walkietalkie/blob/main/.github/ImagesStuff/walkietalkie_banner3.png?raw=true">
 
 - **Easy to use** - craft the radio and use it on the go
 - **Numeric frequency channels** — tune in to talk privately with anyone on the same channel
 - **Cross-dimensional range** — stay in touch with players in other dimensions, not just nearby ones
+<br>
+
+<img alt="banner01" src="https://github.com/SimpleFoxOfficial/pv-addon-walkietalkie/blob/main/.github/ImagesStuff/walkietalkie_banner4.png?raw=true">
+
+- RMB Tap: Toggle the walkie-talkie
+- RMB Held: Speak in the walkie-talkie
+- Shift+RMB: Configure frequency and toggle walkie-talkie (is a menu)
 
 # How To Install
 
@@ -32,12 +39,6 @@
 2. Download the latest jar from [Releases](https://github.com/SimpleFoxOfficial/pv-addon-walkietalkie/releases)
 3. Drop it in your `mods` folder (client + server)
 4. Launch the game, craft a Walkie-Talkie, and tune in
-
-# Usage
-
-- RMB Tap: Toggle the walkie-talkie
-- RMB Held: Speak in the walkie-talkie
-- Shift+RMB: Configure frequency and toggle walkie-talkie (is a menu)
 
 # Building from Source
 
@@ -48,7 +49,7 @@ cd pv-addon-walkietalkie
 ```
 
 The built jar will be in `build/libs/`.
-
-# Credits
+<br><br>
+<img alt="banner01" src="https://github.com/SimpleFoxOfficial/pv-addon-walkietalkie/blob/main/.github/ImagesStuff/walkietalkie_banner5.png?raw=true">
 
 Developed by [SimpleFoxOfficial](https://github.com/SimpleFoxOfficial) and **MrEri** for the [Vector Point](https://github.com/SimpleFoxOfficial/VectorPoint) modpack, built on top of [Plasmo Voice](https://github.com/plasmoapp/plasmo-voice) by Apehum.
