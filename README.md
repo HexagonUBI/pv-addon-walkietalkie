@@ -1,6 +1,6 @@
 <div align=center>
 
-<img alt="banner01" src="https://github.com/SimpleFoxOfficial/pv-addon-walkietalkie/blob/main/.github/ImagesStuff/walkietalkie_banner1.png?raw=true">
+<img alt="banner01" src="https://github.com/SimpleFoxOfficial/pv-addon-walkietalkie/blob/main/.github/ImagesStuff/walkietalkie_banner2.png?raw=true">
 
 ![NeoForge](https://img.shields.io/badge/NeoForge-21.1.233-d8b62b?style=plastic&logo=curseforge&logoColor=white)
 ![Minecraft](https://img.shields.io/badge/Minecraft-1.21.1-3aa343?style=plastic&logo=minecraft&logoColor=white)
