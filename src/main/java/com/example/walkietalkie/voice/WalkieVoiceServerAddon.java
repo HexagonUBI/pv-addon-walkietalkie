@@ -59,7 +59,7 @@ public final class WalkieVoiceServerAddon implements AddonInitializer {
                 this,
                 SOURCE_LINE_NAME,
                 "source_line.walkietalkie.name",
-                "plasmovoice:textures/icons/speaker.png",
+                "walkietalkie:textures/icons/wt_pvradio.png",
                 10
         ).build();
 
@@ -69,7 +69,7 @@ public final class WalkieVoiceServerAddon implements AddonInitializer {
                 this,
                 ACTIVATION_NAME,
                 "activation.walkietalkie.name",
-                "plasmovoice:textures/icons/microphone.png",
+                "walkietalkie:textures/icons/wt_pvradio.png",
                 "walkietalkie.activation",
                 10
         ).build();

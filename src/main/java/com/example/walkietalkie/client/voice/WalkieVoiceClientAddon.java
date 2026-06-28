@@ -17,11 +17,11 @@ import su.plo.voice.api.client.PlasmoVoiceClient;
 import su.plo.voice.api.client.audio.capture.ClientActivation;
 import su.plo.voice.api.client.config.addon.AddonConfig;
 import su.plo.voice.api.client.event.audio.capture.ClientActivationRegisteredEvent;
+import su.plo.voice.api.client.event.audio.capture.ClientActivationUnregisteredEvent;
 import su.plo.voice.api.event.EventSubscribe;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Optional;
 
 /**
  * Client bridge: drives the "walkie_talkie" ClientActivation while the player
@@ -29,10 +29,13 @@ import java.util.Optional;
  * owns the addon's own settings block in PV's Addons menu (the same
  * {@code AddonConfig} mechanism pv-addon-soundphysics and other PV addons use).
  *
- * The PV client activation API is not publicly documented, so we call
- * ClientActivation#setActivated(boolean) via reflection to avoid a compile-time
- * dependency on a method that might not exist. If the call fails, the fallback
- * (bind a key in PV Settings → Activation) continues to work automatically.
+ * The activation's PV "type" defaults to Voice (see {@link #setDefaultToVoice}),
+ * which means PV's engine will activate it from raw mic volume alone, with no
+ * idea whether the radio item is even being held. We are the ones who know
+ * that, so we gate it ourselves with {@link ClientActivation#setDisabled(boolean)}
+ * -- a real, public, supported API -- flipping it on only while the item is
+ * actually being held+used past the hold threshold. Disabled, PV always
+ * returns NOT_ACTIVATED no matter how loud you talk.
  */
 @Addon(
         id = "wt-addon-client",
@@ -46,6 +49,7 @@ public final class WalkieVoiceClientAddon implements AddonInitializer {
     private PlasmoVoiceClient voiceClient;
 
     private boolean transmitting = false;
+    private ClientActivation walkieActivation;
 
     private AddonConfig config;
     private BooleanConfigEntry voiceByDefaultEntry;
@@ -67,30 +71,45 @@ public final class WalkieVoiceClientAddon implements AddonInitializer {
         );
     }
 
+    @EventSubscribe
+    public void onActivationRegistered(ClientActivationRegisteredEvent event) {
+        ClientActivation activation = event.getActivation();
+        if (!WalkieVoiceServerAddon.ACTIVATION_NAME.equals(activation.getName())) return;
+
+        this.walkieActivation = activation;
+        this.transmitting = false;
+
+        // Safe default: not holding the item yet, so it shouldn't be live yet either.
+        // onClientTick re-evaluates every tick and takes over from here.
+        activation.setDisabled(true);
+
+        if (voiceByDefaultEntry != null
+                && voiceByDefaultEntry.value()
+                && activation.getType() != ClientActivation.Type.VOICE) {
+            setDefaultToVoice(activation);
+        }
+    }
+
+    @EventSubscribe
+    public void onActivationUnregistered(ClientActivationUnregisteredEvent event) {
+        if (event.getActivation() == walkieActivation) {
+            this.walkieActivation = null;
+        }
+    }
+
     /**
      * PV creates a brand-new per-activation config entry (type = Push-to-Talk) the
      * first time a player ever sees this activation, requiring a separate PTT key on
      * top of holding the item -- which defeats the point of a press-to-talk radio.
      * Nudge it to Voice once, unless the player has since picked something else
      * themselves in PV's own Activation settings.
-     */
-    @EventSubscribe
-    public void onActivationRegistered(ClientActivationRegisteredEvent event) {
-        ClientActivation activation = event.getActivation();
-        if (!WalkieVoiceServerAddon.ACTIVATION_NAME.equals(activation.getName())) return;
-        if (voiceByDefaultEntry == null || !voiceByDefaultEntry.value()) return;
-        if (activation.getType() == ClientActivation.Type.VOICE) return;
-
-        setDefaultToVoice(activation);
-    }
-
-    /**
-     * PV doesn't expose a public setter for an activation's Push-to-Talk/Voice/Inherit
-     * type (ClientActivation only has a getter) -- it's meant to be the player's own
-     * choice. We reach into the private per-activation config entry the same way PV's
-     * own code does internally (see VoiceClientActivationManager#register, which does
-     * the equivalent for the built-in proximity activation), but via reflection so a PV
-     * update that renames things can't break the build.
+     *
+     * PV doesn't expose a public setter for this (ClientActivation only has a
+     * getter) -- it's meant to be the player's own choice. We reach into the
+     * private per-activation config entry the same way PV's own code does
+     * internally (see VoiceClientActivationManager#register, which does the
+     * equivalent for the built-in proximity activation), but via reflection so a
+     * PV update that renames things can't break the build.
      */
     private void setDefaultToVoice(ClientActivation activation) {
         try {
@@ -114,12 +133,17 @@ public final class WalkieVoiceClientAddon implements AddonInitializer {
     }
 
     private void onClientTick(ClientTickEvent.Post event) {
+        if (walkieActivation == null) return;
+
         LocalPlayer player = Minecraft.getInstance().player;
         boolean shouldTransmit = player != null && wantsToTransmit(player);
 
         if (shouldTransmit != transmitting) {
             transmitting = shouldTransmit;
-            applyTransmit(shouldTransmit);
+            // Disabled = PV always reports NOT_ACTIVATED, regardless of mic volume.
+            // This is what keeps Voice-type detection scoped to "item is held" instead
+            // of firing (and showing the activation icon) any time you talk at all.
+            walkieActivation.setDisabled(!shouldTransmit);
         }
     }
 
@@ -129,33 +153,5 @@ public final class WalkieVoiceClientAddon implements AddonInitializer {
         if (!(using.getItem() instanceof WalkieTalkieItem)) return false;
         if (!WalkieTalkieItem.isEnabled(using)) return false;
         return player.getTicksUsingItem() >= WalkieTalkieItem.HOLD_THRESHOLD;
-    }
-
-    /**
-     * Activates/deactivates the PV client activation via reflection.
-     * We use reflection because PV's client API is internal and the method
-     * name is not guaranteed — this way the build succeeds regardless.
-     *
-     * Tried method names (PV 2.1.x): setActivated(boolean)
-     * Falls back silently if unavailable; players can bind a PTT key in PV settings.
-     */
-    private void applyTransmit(boolean active) {
-        try {
-            Object mgr = voiceClient.getActivationManager();
-            // getActivationByName(String) → Optional<ClientActivation>
-            Method getByName = mgr.getClass().getMethod(
-                    "getActivationByName", String.class);
-            Optional<?> opt = (Optional<?>) getByName.invoke(
-                    mgr, WalkieVoiceServerAddon.ACTIVATION_NAME);
-            opt.ifPresent(activation -> {
-                try {
-                    Method setter = activation.getClass()
-                            .getMethod("setActivated", boolean.class);
-                    setter.invoke(activation, active);
-                } catch (Exception ignored) {}
-            });
-        } catch (Exception ignored) {
-            // PV client API unavailable or method renamed — fallback to PV keybind.
-        }
     }
 }
