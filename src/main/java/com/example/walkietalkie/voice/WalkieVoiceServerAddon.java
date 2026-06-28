@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Addon(
         id = "wt-addon-server",
         name = "Walkie Talkie",
-        version = "1.0.3",
+        version = "1.0.4",
         authors = {"SimpleFox"}
 )
 public final class WalkieVoiceServerAddon implements AddonInitializer {

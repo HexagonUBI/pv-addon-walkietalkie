@@ -13,5 +13,8 @@
   "screen.walkietalkie.power": "Radio",
 
   "activation.walkietalkie.name": "Walkie Talkie",
-  "source_line.walkietalkie.name": "Walkie Talkie"
+  "source_line.walkietalkie.name": "Walkie Talkie",
+
+  "config.walkietalkie.voice_default": "Default to Voice Activation",
+  "config.walkietalkie.voice_default.tooltip": "New players get the Walkie Talkie's activation set to Voice instead of Push-to-Talk, so holding the item is the only button you need. Turn this off to manage it yourself in PV's Activation settings."
 }

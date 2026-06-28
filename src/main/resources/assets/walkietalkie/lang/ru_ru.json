@@ -13,5 +13,8 @@
   "screen.walkietalkie.power": "Рация",
 
   "activation.walkietalkie.name": "Рация",
-  "source_line.walkietalkie.name": "Рация"
+  "source_line.walkietalkie.name": "Рация",
+
+  "config.walkietalkie.voice_default": "Голосовая активация по умолчанию",
+  "config.walkietalkie.voice_default.tooltip": "У новых игроков активация рации выставляется на «Голос» вместо «Push-to-Talk», так что достаточно держать предмет в руке. Отключите, чтобы настроить это самостоятельно в настройках активации Plasmo Voice."
 }
