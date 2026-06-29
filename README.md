@@ -25,8 +25,8 @@
 <img alt="banner01" src="https://github.com/SimpleFoxOfficial/pv-addon-walkietalkie/blob/main/.github/ImagesStuff/walkietalkie_banner3.png?raw=true">
 
 - **Easy to use** - craft the radio and use it on the go
-- **Numeric frequency channels** — tune in to talk privately with anyone on the same channel
-- **Cross-dimensional range** — stay in touch with players in other dimensions, not just nearby ones
+- **Numeric frequency channels** - tune in to talk privately with anyone on the same channel
+- **Cross-dimensional range** - stay in touch with players in other dimensions, not just nearby ones
 <br>
 
 <img alt="banner01" src="https://github.com/SimpleFoxOfficial/pv-addon-walkietalkie/blob/main/.github/ImagesStuff/walkietalkie_banner4.png?raw=true">
