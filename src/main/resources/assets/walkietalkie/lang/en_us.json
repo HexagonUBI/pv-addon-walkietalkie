@@ -18,6 +18,9 @@
   "config.walkietalkie.voice_default": "Default to Voice Activation",
   "config.walkietalkie.voice_default.tooltip": "New players get the Walkie Talkie's activation set to Voice instead of Push-to-Talk, so holding the item is the only button you need. Turn this off to manage it yourself in PV's Activation settings.",
 
+  "config.walkietalkie.sfx_volume": "Walkie-Talkie SFX Volume",
+  "config.walkietalkie.sfx_volume.tooltip": "Volume of the power on/off and talk start/stop click sounds.",
+
   "subtitles.walkietalkie.toggle_on": "Walkie-talkie powers on",
   "subtitles.walkietalkie.toggle_off": "Walkie-talkie powers off",
   "subtitles.walkietalkie.talk_start": "Radio clicks on",

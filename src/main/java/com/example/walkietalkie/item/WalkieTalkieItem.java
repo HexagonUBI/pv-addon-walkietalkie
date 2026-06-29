@@ -73,22 +73,27 @@ public class WalkieTalkieItem extends Item {
                 true);
 
         // Physical button click -- positional, audible to the player and anyone standing
-        // nearby, the same as any other handheld item sound.
+        // nearby, the same as any other handheld item sound. Volume follows the toggling
+        // player's own SFX slider; nearby bystanders just hear "how loud the click is",
+        // same as a real device.
         SoundEvent click = (now ? WTSounds.TOGGLE_ON : WTSounds.TOGGLE_OFF).get();
-        sp.level().playSound(null, sp.getX(), sp.getY(), sp.getZ(), click, SoundSource.PLAYERS, 0.6F, 1.0F);
+        float volume = RadioState.get(sp.server).sfxVolumeOf(sp.getUUID());
+        sp.level().playSound(null, sp.getX(), sp.getY(), sp.getZ(), click, SoundSource.PLAYERS, volume, 1.0F);
     }
 
     /**
      * PTT key click, sent directly to every player currently listening on {@code frequency}
      * (per {@link RadioState#listenersFor}) via {@link ServerPlayer#playNotifySound}, NOT a
      * positional sound -- the radio has cross-dimensional range, so "can hear it" means "has
-     * an enabled walkie tuned to this frequency", not "is standing nearby".
+     * an enabled walkie tuned to this frequency", not "is standing nearby". Each listener
+     * hears it at their own SFX volume preference, not the speaker's.
      */
     private static void notifyFrequency(MinecraftServer server, int frequency, SoundEvent sound) {
-        for (UUID uuid : RadioState.get(server).listenersFor(frequency)) {
+        RadioState state = RadioState.get(server);
+        for (UUID uuid : state.listenersFor(frequency)) {
             ServerPlayer listener = server.getPlayerList().getPlayer(uuid);
             if (listener != null) {
-                listener.playNotifySound(sound, SoundSource.PLAYERS, 0.5F, 1.0F);
+                listener.playNotifySound(sound, SoundSource.PLAYERS, state.sfxVolumeOf(uuid), 1.0F);
             }
         }
     }

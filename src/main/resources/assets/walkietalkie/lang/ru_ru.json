@@ -18,6 +18,9 @@
   "config.walkietalkie.voice_default": "Голосовая активация по умолчанию",
   "config.walkietalkie.voice_default.tooltip": "У новых игроков активация рации выставляется на «Голос» вместо «Push-to-Talk», так что достаточно держать предмет в руке. Отключите, чтобы настроить это самостоятельно в настройках активации Plasmo Voice.",
 
+  "config.walkietalkie.sfx_volume": "Громкость звуков рации",
+  "config.walkietalkie.sfx_volume.tooltip": "Громкость щелчков включения/выключения и начала/конца разговора.",
+
   "subtitles.walkietalkie.toggle_on": "Рация включается",
   "subtitles.walkietalkie.toggle_off": "Рация выключается",
   "subtitles.walkietalkie.talk_start": "Щелчок рации",

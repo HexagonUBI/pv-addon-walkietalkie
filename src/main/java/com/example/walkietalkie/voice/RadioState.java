@@ -15,7 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Single source of truth, server-side, for:
  *   • which players are currently listening on which frequency, and
- *   • which players are currently transmitting (and on what frequency).
+ *   • which players are currently transmitting (and on what frequency), and
+ *   • each player's preferred volume for the addon's click sounds.
  *
  * A player "listens" on a frequency if they hold an ENABLED walkie tuned to it
  * anywhere in their inventory. Listener sets are cached and refreshed on config
@@ -23,6 +24,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * recomputed for every 20 ms audio frame.
  */
 public final class RadioState {
+
+    /** Matches the AddonConfig slider's own default in WalkieVoiceClientAddon. */
+    public static final float DEFAULT_SFX_VOLUME = 0.6F;
 
     private static volatile RadioState instance;
 
@@ -47,6 +51,8 @@ public final class RadioState {
     private final Map<Integer, Set<UUID>> listenersByFreq = new ConcurrentHashMap<>();
     // transmitting player UUID -> freq
     private final Map<UUID, Integer> transmitting = new ConcurrentHashMap<>();
+    // player UUID -> their preferred volume for the addon's toggle/talk click sounds
+    private final Map<UUID, Float> sfxVolume = new ConcurrentHashMap<>();
 
     private RadioState() {}
 
@@ -62,6 +68,16 @@ public final class RadioState {
 
     public Integer getTransmitFrequency(UUID uuid) {
         return transmitting.get(uuid);
+    }
+
+    // ---- per-player sound effect volume (reported by the client's AddonConfig slider) ----
+
+    public void setSfxVolume(UUID uuid, float volume) {
+        sfxVolume.put(uuid, Math.max(0F, Math.min(1F, volume)));
+    }
+
+    public float sfxVolumeOf(UUID uuid) {
+        return sfxVolume.getOrDefault(uuid, DEFAULT_SFX_VOLUME);
     }
 
     // ---- listener cache ----

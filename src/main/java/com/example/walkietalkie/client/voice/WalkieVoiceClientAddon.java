@@ -1,14 +1,18 @@
 package com.example.walkietalkie.client.voice;
 
 import com.example.walkietalkie.item.WalkieTalkieItem;
+import com.example.walkietalkie.net.payload.SfxVolumeC2S;
 import com.example.walkietalkie.voice.WalkieVoiceServerAddon;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import su.plo.config.entry.BooleanConfigEntry;
+import su.plo.config.entry.DoubleConfigEntry;
 import su.plo.slib.api.chat.component.McTextComponent;
 import su.plo.voice.api.addon.AddonInitializer;
 import su.plo.voice.api.addon.InjectPlasmoVoice;
@@ -53,10 +57,12 @@ public final class WalkieVoiceClientAddon implements AddonInitializer {
 
     private AddonConfig config;
     private BooleanConfigEntry voiceByDefaultEntry;
+    private DoubleConfigEntry sfxVolumeEntry;
 
     @Override
     public void onAddonInitialize() {
         NeoForge.EVENT_BUS.addListener(this::onClientTick);
+        NeoForge.EVENT_BUS.addListener(this::onLoggingIn);
 
         // The addon's own block in PV's Addons settings menu. Backed by PV's normal
         // client config (config/plasmovoice/client.toml, "addons" section) -- same
@@ -69,6 +75,26 @@ public final class WalkieVoiceClientAddon implements AddonInitializer {
                 McTextComponent.translatable("config.walkietalkie.voice_default.tooltip"),
                 true
         );
+        this.sfxVolumeEntry = config.addVolumeSlider(
+                "sfx-volume",
+                McTextComponent.translatable("config.walkietalkie.sfx_volume"),
+                McTextComponent.translatable("config.walkietalkie.sfx_volume.tooltip"),
+                "%",
+                0.6D, 0.0D, 1.0D
+        );
+        // 60% default so the toggle/talk clicks don't blast players the moment they pick
+        // one up; report it (and any later change) to the server, which is what actually
+        // plays these sounds and needs to know how loud to make them.
+        sfxVolumeEntry.addChangeListener(volume -> sendSfxVolume());
+    }
+
+    private void onLoggingIn(ClientPlayerNetworkEvent.LoggingIn event) {
+        sendSfxVolume();
+    }
+
+    private void sendSfxVolume() {
+        if (sfxVolumeEntry == null) return;
+        PacketDistributor.sendToServer(new SfxVolumeC2S(sfxVolumeEntry.value().floatValue()));
     }
 
     @EventSubscribe

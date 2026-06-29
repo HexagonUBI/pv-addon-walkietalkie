@@ -2,6 +2,7 @@ package com.example.walkietalkie.net;
 
 import com.example.walkietalkie.item.WalkieTalkieItem;
 import com.example.walkietalkie.net.payload.ConfigureWalkieC2S;
+import com.example.walkietalkie.net.payload.SfxVolumeC2S;
 import com.example.walkietalkie.net.payload.ToggleWalkieC2S;
 import com.example.walkietalkie.registry.WTComponents;
 import com.example.walkietalkie.voice.RadioState;
@@ -24,6 +25,10 @@ public final class WTPayloads {
                 ToggleWalkieC2S.TYPE,
                 ToggleWalkieC2S.STREAM_CODEC,
                 WTPayloads::handleToggle);
+        registrar.playToServer(
+                SfxVolumeC2S.TYPE,
+                SfxVolumeC2S.STREAM_CODEC,
+                WTPayloads::handleSfxVolume);
     }
 
     private static void handleConfigure(ConfigureWalkieC2S payload, IPayloadContext ctx) {
@@ -61,6 +66,13 @@ public final class WTPayloads {
             if (!(stack.getItem() instanceof WalkieTalkieItem)) return;
 
             WalkieTalkieItem.togglePower(stack, sp);
+        });
+    }
+
+    private static void handleSfxVolume(SfxVolumeC2S payload, IPayloadContext ctx) {
+        ctx.enqueueWork(() -> {
+            if (!(ctx.player() instanceof ServerPlayer sp)) return;
+            RadioState.get(sp.server).setSfxVolume(sp.getUUID(), payload.volume());
         });
     }
 
