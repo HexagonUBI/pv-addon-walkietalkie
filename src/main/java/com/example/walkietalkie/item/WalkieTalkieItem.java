@@ -3,10 +3,14 @@ package com.example.walkietalkie.item;
 import com.example.walkietalkie.client.WTClientHooks;
 import com.example.walkietalkie.net.payload.ToggleWalkieC2S;
 import com.example.walkietalkie.registry.WTComponents;
+import com.example.walkietalkie.registry.WTSounds;
 import com.example.walkietalkie.voice.RadioState;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
@@ -22,6 +26,7 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * One item, three gestures, all derived from how long right-click is held:
@@ -66,6 +71,26 @@ public class WalkieTalkieItem extends Item {
                 Component.translatable(now ? "msg.walkietalkie.on" : "msg.walkietalkie.off")
                         .withStyle(now ? ChatFormatting.GREEN : ChatFormatting.GRAY),
                 true);
+
+        // Physical button click -- positional, audible to the player and anyone standing
+        // nearby, the same as any other handheld item sound.
+        SoundEvent click = (now ? WTSounds.TOGGLE_ON : WTSounds.TOGGLE_OFF).get();
+        sp.level().playSound(null, sp.getX(), sp.getY(), sp.getZ(), click, SoundSource.PLAYERS, 0.6F, 1.0F);
+    }
+
+    /**
+     * PTT key click, sent directly to every player currently listening on {@code frequency}
+     * (per {@link RadioState#listenersFor}) via {@link ServerPlayer#playNotifySound}, NOT a
+     * positional sound -- the radio has cross-dimensional range, so "can hear it" means "has
+     * an enabled walkie tuned to this frequency", not "is standing nearby".
+     */
+    private static void notifyFrequency(MinecraftServer server, int frequency, SoundEvent sound) {
+        for (UUID uuid : RadioState.get(server).listenersFor(frequency)) {
+            ServerPlayer listener = server.getPlayerList().getPlayer(uuid);
+            if (listener != null) {
+                listener.playNotifySound(sound, SoundSource.PLAYERS, 0.5F, 1.0F);
+            }
+        }
     }
 
     @Override
@@ -107,7 +132,9 @@ public class WalkieTalkieItem extends Item {
                 && !level.isClientSide
                 && entity instanceof ServerPlayer sp
                 && isEnabled(stack)) {
-            RadioState.get(sp.server).startTransmitting(sp, frequencyOf(stack));
+            int freq = frequencyOf(stack);
+            RadioState.get(sp.server).startTransmitting(sp, freq);
+            notifyFrequency(sp.server, freq, WTSounds.TALK_START.get());
         }
     }
 
@@ -122,7 +149,9 @@ public class WalkieTalkieItem extends Item {
             togglePower(stack, sp); // QUICK TAP -> toggle power.
         } else {
             // Was talking -> stop.
+            int freq = frequencyOf(stack);
             RadioState.get(sp.server).stopTransmitting(sp);
+            notifyFrequency(sp.server, freq, WTSounds.TALK_STOP.get());
         }
     }
 

@@ -3,6 +3,7 @@ package com.example.walkietalkie;
 import com.example.walkietalkie.net.WTPayloads;
 import com.example.walkietalkie.registry.WTComponents;
 import com.example.walkietalkie.registry.WTItems;
+import com.example.walkietalkie.registry.WTSounds;
 import com.example.walkietalkie.voice.WalkieVoiceServerAddon;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
@@ -32,6 +33,7 @@ public final class WalkieTalkieMod {
         // ---- NeoForge registrations (mod event bus) ----
         WTComponents.REGISTER.register(modBus);
         WTItems.REGISTER.register(modBus);
+        WTSounds.REGISTER.register(modBus);
 
         modBus.addListener(this::commonSetup);
         modBus.addListener(WTPayloads::register);     // RegisterPayloadHandlersEvent
