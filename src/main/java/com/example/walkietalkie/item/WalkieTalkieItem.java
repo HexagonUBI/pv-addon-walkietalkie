@@ -1,6 +1,7 @@
 package com.example.walkietalkie.item;
 
 import com.example.walkietalkie.client.WTClientHooks;
+import com.example.walkietalkie.net.payload.ToggleWalkieC2S;
 import com.example.walkietalkie.registry.WTComponents;
 import com.example.walkietalkie.voice.RadioState;
 import net.minecraft.ChatFormatting;
@@ -9,12 +10,16 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickAction;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
 
@@ -24,6 +29,10 @@ import java.util.List;
  *   • SHIFT + right-click  -> open the config screen (frequency + settings).
  *   • quick tap            -> toggle the radio on/off.
  *   • hold (> threshold)   -> push-to-talk on the current frequency.
+ *
+ * Plus a fourth, inventory-only gesture, the same way bundles handle clicks in a GUI
+ * slot: right-clicking the walkie-talkie while it's sitting in a slot (cursor empty)
+ * also toggles power, without needing to hold it first.
  *
  * The "talk" gesture only marks server-side intent + frequency. The actual microphone
  * capture is started client-side by the Plasmo Voice client bridge while the item is
@@ -45,6 +54,18 @@ public class WalkieTalkieItem extends Item {
 
     public static boolean isEnabled(ItemStack stack) {
         return stack.getOrDefault(WTComponents.ENABLED.get(), Boolean.FALSE);
+    }
+
+    /** Flips power and reports it, shared by the quick-tap gesture, the inventory click,
+     *  and the creative-mode toggle payload handler. */
+    public static void togglePower(ItemStack stack, ServerPlayer sp) {
+        boolean now = !isEnabled(stack);
+        stack.set(WTComponents.ENABLED.get(), now);
+        RadioState.get(sp.server).refreshListeners(sp.server);
+        sp.displayClientMessage(
+                Component.translatable(now ? "msg.walkietalkie.on" : "msg.walkietalkie.off")
+                        .withStyle(now ? ChatFormatting.GREEN : ChatFormatting.GRAY),
+                true);
     }
 
     @Override
@@ -98,18 +119,48 @@ public class WalkieTalkieItem extends Item {
 
         int elapsed = getUseDuration(stack, entity) - timeLeft;
         if (elapsed < HOLD_THRESHOLD) {
-            // QUICK TAP -> toggle power.
-            boolean now = !isEnabled(stack);
-            stack.set(WTComponents.ENABLED.get(), now);
-            RadioState.get(sp.server).refreshListeners(sp.server);
-            sp.displayClientMessage(
-                    Component.translatable(now ? "msg.walkietalkie.on" : "msg.walkietalkie.off")
-                            .withStyle(now ? ChatFormatting.GREEN : ChatFormatting.GRAY),
-                    true);
+            togglePower(stack, sp); // QUICK TAP -> toggle power.
         } else {
             // Was talking -> stop.
             RadioState.get(sp.server).stopTransmitting(sp);
         }
+    }
+
+    /**
+     * Bundle-style inventory interaction: right-clicking an empty cursor onto the
+     * walkie-talkie while it's sitting in a slot toggles power, the same way an empty
+     * cursor right-clicked onto a bundle extracts an item. Returning {@code true} stops
+     * the menu from also running the default pickup/swap for this click.
+     *
+     * Survival container screens call this on both the predicting client and the
+     * authoritative server, so gating on ServerPlayer there is enough -- the server's
+     * mutation reaches the client via normal slot sync. The creative inventory screen is
+     * the odd one out: per NeoForge/vanilla, item click overrides in the creative menu
+     * only ever fire client-side, with no matching server call to piggyback on. So for a
+     * creative player we mutate locally for instant feedback and explicitly tell the
+     * server which of its own inventory slots to flip via {@link ToggleWalkieC2S}.
+     */
+    @Override
+    public boolean overrideOtherStackedOnMe(
+            ItemStack stack,
+            ItemStack carried,
+            Slot slot,
+            ClickAction action,
+            Player player,
+            SlotAccess carriedSlotAccess
+    ) {
+        if (action != ClickAction.SECONDARY || !carried.isEmpty() || !slot.allowModification(player)) {
+            return false;
+        }
+        if (player instanceof ServerPlayer sp) {
+            togglePower(stack, sp);
+        } else if (player.isCreative()) {
+            // Per the method doc above, creative-menu clicks only reach us on the
+            // logical client (never as a ServerPlayer), so sendToServer is safe here.
+            stack.set(WTComponents.ENABLED.get(), !isEnabled(stack));
+            PacketDistributor.sendToServer(new ToggleWalkieC2S(slot.getContainerSlot()));
+        }
+        return true;
     }
 
     @Override

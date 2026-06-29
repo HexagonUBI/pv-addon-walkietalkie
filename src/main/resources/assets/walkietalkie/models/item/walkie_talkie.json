@@ -8,5 +8,11 @@
         "gui": {
             "parent": "walkietalkie:item/walkie_talkie_slotoff"
         }
-    }
+    },
+    "overrides": [
+        {
+            "predicate": { "walkietalkie:enabled": 1 },
+            "model": "walkietalkie:item/walkie_talkie_on"
+        }
+    ]
 }

@@ -2,6 +2,7 @@ package com.example.walkietalkie.net;
 
 import com.example.walkietalkie.item.WalkieTalkieItem;
 import com.example.walkietalkie.net.payload.ConfigureWalkieC2S;
+import com.example.walkietalkie.net.payload.ToggleWalkieC2S;
 import com.example.walkietalkie.registry.WTComponents;
 import com.example.walkietalkie.voice.RadioState;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,6 +20,10 @@ public final class WTPayloads {
                 ConfigureWalkieC2S.TYPE,
                 ConfigureWalkieC2S.STREAM_CODEC,
                 WTPayloads::handleConfigure);
+        registrar.playToServer(
+                ToggleWalkieC2S.TYPE,
+                ToggleWalkieC2S.STREAM_CODEC,
+                WTPayloads::handleToggle);
     }
 
     private static void handleConfigure(ConfigureWalkieC2S payload, IPayloadContext ctx) {
@@ -35,6 +40,27 @@ public final class WTPayloads {
             stack.set(WTComponents.ENABLED.get(), payload.enabled());
 
             RadioState.get(sp.server).refreshListeners(sp.server);
+        });
+    }
+
+    /**
+     * Creative-menu counterpart to the survival inventory-click toggle (see
+     * {@code WalkieTalkieItem#overrideOtherStackedOnMe}). The creative screen only ever
+     * invokes Item click overrides client-side, so the client tells us directly which of
+     * its own inventory slots to flip instead of us seeing it through the normal click path.
+     */
+    private static void handleToggle(ToggleWalkieC2S payload, IPayloadContext ctx) {
+        ctx.enqueueWork(() -> {
+            if (!(ctx.player() instanceof ServerPlayer sp)) return;
+            if (!sp.isCreative()) return; // survival already goes through the authoritative click path
+
+            int slot = payload.containerSlot();
+            if (slot < 0 || slot >= sp.getInventory().getContainerSize()) return;
+
+            ItemStack stack = sp.getInventory().getItem(slot);
+            if (!(stack.getItem() instanceof WalkieTalkieItem)) return;
+
+            WalkieTalkieItem.togglePower(stack, sp);
         });
     }
 
