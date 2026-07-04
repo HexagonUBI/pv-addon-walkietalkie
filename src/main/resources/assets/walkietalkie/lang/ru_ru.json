@@ -3,7 +3,7 @@
   "item.walkietalkie.microphone_module": "Микрофонный модуль",
   "item.walkietalkie.debug_module_a": "Отладочный модуль A",
   "item.walkietalkie.debug_module_b": "Отладочный модуль B",
-  "block.walkietalkie.radio_station": "Радиостанция",
+  "block.walkietalkie.radio_station": "Радио Станция",
 
   "tooltip.walkietalkie.frequency": "Частота: %s",
   "tooltip.walkietalkie.on": "Рация: Включен",
