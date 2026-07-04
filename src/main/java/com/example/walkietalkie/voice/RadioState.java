@@ -1,6 +1,8 @@
 package com.example.walkietalkie.voice;
 
 import com.example.walkietalkie.item.WalkieTalkieItem;
+import com.example.walkietalkie.util.FrequencyUtil;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -47,12 +49,18 @@ public final class RadioState {
         instance = null;
     }
 
-    // freq -> set of listening player UUIDs
+    // freq -> set of listening player UUIDs. "freq" here is always a DECI-frequency int
+    // (the real, decimal frequency * 10, rounded) -- see FrequencyUtil. Using a fixed-point
+    // int instead of a raw float as the map key avoids float-equality headaches.
     private final Map<Integer, Set<UUID>> listenersByFreq = new ConcurrentHashMap<>();
-    // transmitting player UUID -> freq
+    // transmitting player UUID -> deci-frequency
     private final Map<UUID, Integer> transmitting = new ConcurrentHashMap<>();
     // player UUID -> their preferred volume for the addon's toggle/talk click sounds
     private final Map<UUID, Float> sfxVolume = new ConcurrentHashMap<>();
+    // Active Radio Stations: blockPos -> deci-frequency.
+    // A station is "active" when it is powered on AND has a microphone module in slot 0.
+    // Registered by RadioStationBlockEntity; consumed by WalkieVoiceServerAddon for relay.
+    private final Map<BlockPos, Integer> activeStations = new ConcurrentHashMap<>();
 
     private RadioState() {}
 
@@ -80,6 +88,32 @@ public final class RadioState {
         return sfxVolume.getOrDefault(uuid, DEFAULT_SFX_VOLUME);
     }
 
+    // ---- Radio Station registration (called by RadioStationBlockEntity) ----
+
+    /**
+     * Registers a Radio Station as active (powered on + mic module inserted).
+     * After calling this, {@link WalkieVoiceServerAddon} will relay incoming audio frames
+     * on {@code deciFrequency} to a static positional source at this block's position,
+     * so nearby players can hear the radio.
+     */
+    public void setStationActive(BlockPos pos, int deciFrequency) {
+        activeStations.put(pos, deciFrequency);
+    }
+
+    /** Removes the station from the active set (powered off or mic removed or block broken). */
+    public void setStationInactive(BlockPos pos) {
+        activeStations.remove(pos);
+    }
+
+    /** Returns all block positions of active stations tuned to {@code deciFrequency}. */
+    public Set<BlockPos> stationsForFrequency(int deciFrequency) {
+        Set<BlockPos> result = new HashSet<>();
+        activeStations.forEach((pos, freq) -> {
+            if (freq.equals(deciFrequency)) result.add(pos);
+        });
+        return result;
+    }
+
     // ---- listener cache ----
 
     public Set<UUID> listenersFor(int frequency) {
@@ -94,7 +128,7 @@ public final class RadioState {
             // Scan the whole inventory; a player may carry several walkies.
             for (ItemStack stack : sp.getInventory().items) {
                 if (stack.getItem() instanceof WalkieTalkieItem && WalkieTalkieItem.isEnabled(stack)) {
-                    int freq = WalkieTalkieItem.frequencyOf(stack);
+                    int freq = FrequencyUtil.toDeci(WalkieTalkieItem.frequencyOf(stack));
                     next.computeIfAbsent(freq, k -> new HashSet<>()).add(uuid);
                 }
             }

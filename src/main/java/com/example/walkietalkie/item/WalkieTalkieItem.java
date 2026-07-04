@@ -1,10 +1,12 @@
 package com.example.walkietalkie.item;
 
-import com.example.walkietalkie.client.WTClientHooks;
+import com.example.walkietalkie.menu.ItemRadioSource;
+import com.example.walkietalkie.menu.RadioMenu;
 import com.example.walkietalkie.net.payload.StaticStateS2C;
 import com.example.walkietalkie.net.payload.ToggleWalkieC2S;
 import com.example.walkietalkie.registry.WTComponents;
 import com.example.walkietalkie.registry.WTSounds;
+import com.example.walkietalkie.util.FrequencyUtil;
 import com.example.walkietalkie.voice.RadioState;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -14,6 +16,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
@@ -32,7 +35,9 @@ import java.util.UUID;
 /**
  * One item, three gestures, all derived from how long right-click is held:
  *
- *   • SHIFT + right-click  -> open the config screen (frequency + settings).
+ *   • SHIFT + right-click  -> open the radio configuration menu (frequency slider,
+ *                             on/off button, module slots), embedded in the player's
+ *                             own inventory screen like a "bundle"-style mod GUI.
  *   • quick tap            -> toggle the radio on/off.
  *   • hold (> threshold)   -> push-to-talk on the current frequency.
  *
@@ -43,6 +48,9 @@ import java.util.UUID;
  * The "talk" gesture only marks server-side intent + frequency. The actual microphone
  * capture is started client-side by the Plasmo Voice client bridge while the item is
  * being used (see WalkieVoiceClientAddon).
+ *
+ * Frequency is stored as a float (one decimal place, e.g. 100.2); RadioState's listener
+ * map keys are "deci-frequency" ints (freq * 10, rounded) -- see FrequencyUtil for why.
  */
 public class WalkieTalkieItem extends Item {
 
@@ -50,23 +58,37 @@ public class WalkieTalkieItem extends Item {
     public static final int HOLD_THRESHOLD = 6; // ~0.3s
     private static final int MAX_USE = 72000;   // effectively "hold forever", like a bow
 
+    /** Frequency a freshly crafted/given walkie starts on, clamped into the server's range. */
+    private static final float DEFAULT_FREQUENCY = 100.0F;
+
     public WalkieTalkieItem(Properties properties) {
         super(properties);
     }
 
-    public static int frequencyOf(ItemStack stack) {
-        return stack.getOrDefault(WTComponents.FREQUENCY.get(), 0);
+    public static float frequencyOf(ItemStack stack) {
+        return FrequencyUtil.clamp(stack.getOrDefault(WTComponents.FREQUENCY.get(), DEFAULT_FREQUENCY));
     }
 
     public static boolean isEnabled(ItemStack stack) {
         return stack.getOrDefault(WTComponents.ENABLED.get(), Boolean.FALSE);
     }
 
-    /** Flips power and reports it, shared by the quick-tap gesture, the inventory click,
-     *  and the creative-mode toggle payload handler. */
+    /** Flips power and reports it, shared by the quick-tap gesture and the inventory click. */
     public static void togglePower(ItemStack stack, ServerPlayer sp) {
-        boolean now = !isEnabled(stack);
+        setEnabled(stack, sp, !isEnabled(stack));
+    }
+
+    /**
+     * Sets power state with full feedback (chat message, click sound, listener refresh).
+     * Shared by every entry point that can flip the radio's power: quick-tap, the
+     * inventory-click toggle, the creative-mode toggle payload, and the new GUI's
+     * on/off button.
+     */
+    public static void setEnabled(ItemStack stack, ServerPlayer sp, boolean now) {
+        boolean was = isEnabled(stack);
         stack.set(WTComponents.ENABLED.get(), now);
+        if (was == now) return; // no actual change -> skip feedback + listener refresh
+
         RadioState.get(sp.server).refreshListeners(sp.server);
         sp.displayClientMessage(
                 Component.translatable(now ? "msg.walkietalkie.on" : "msg.walkietalkie.off")
@@ -83,15 +105,16 @@ public class WalkieTalkieItem extends Item {
     }
 
     /**
-     * PTT key click, sent directly to every player currently listening on {@code frequency}
-     * (per {@link RadioState#listenersFor}) via {@link ServerPlayer#playNotifySound}, NOT a
-     * positional sound -- the radio has cross-dimensional range, so "can hear it" means "has
-     * an enabled walkie tuned to this frequency", not "is standing nearby". Each listener
-     * hears it at their own SFX volume preference, not the speaker's.
+     * PTT key click, sent directly to every player currently listening on
+     * {@code deciFrequency} (per {@link RadioState#listenersFor}) via
+     * {@link ServerPlayer#playNotifySound}, NOT a positional sound -- the radio has
+     * cross-dimensional range, so "can hear it" means "has an enabled walkie tuned to
+     * this frequency", not "is standing nearby". Each listener hears it at their own SFX
+     * volume preference, not the speaker's.
      */
-    private static void notifyFrequency(MinecraftServer server, int frequency, SoundEvent sound) {
+    private static void notifyFrequency(MinecraftServer server, int deciFrequency, SoundEvent sound) {
         RadioState state = RadioState.get(server);
-        for (UUID uuid : state.listenersFor(frequency)) {
+        for (UUID uuid : state.listenersFor(deciFrequency)) {
             ServerPlayer listener = server.getPlayerList().getPlayer(uuid);
             if (listener != null) {
                 listener.playNotifySound(sound, SoundSource.PLAYERS, state.sfxVolumeOf(uuid), 1.0F);
@@ -101,13 +124,13 @@ public class WalkieTalkieItem extends Item {
 
     /**
      * Broadcasts a looping-static start/stop packet to every player listening on
-     * {@code frequency}. Each listener starts or stops the analog static sound on
+     * {@code deciFrequency}. Each listener starts or stops the analog static sound on
      * their own client via {@link com.example.walkietalkie.client.WTClientSounds}.
      */
-    public static void broadcastStaticState(MinecraftServer server, int frequency, boolean active) {
-        StaticStateS2C packet = new StaticStateS2C(frequency, active);
+    public static void broadcastStaticState(MinecraftServer server, int deciFrequency, boolean active) {
+        StaticStateS2C packet = new StaticStateS2C(deciFrequency, active);
         RadioState state = RadioState.get(server);
-        for (UUID uuid : state.listenersFor(frequency)) {
+        for (UUID uuid : state.listenersFor(deciFrequency)) {
             ServerPlayer listener = server.getPlayerList().getPlayer(uuid);
             if (listener != null) {
                 PacketDistributor.sendToPlayer(listener, packet);
@@ -119,11 +142,13 @@ public class WalkieTalkieItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
-        // SHIFT -> config screen, do NOT begin "using".
+        // SHIFT -> open the radio configuration menu, do NOT begin "using".
         if (player.isSecondaryUseActive()) {
-            if (level.isClientSide) {
-                // Reached only on the client; class is never loaded on a dedicated server.
-                WTClientHooks.openConfigScreen(hand);
+            if (!level.isClientSide && player instanceof ServerPlayer sp) {
+                sp.openMenu(new SimpleMenuProvider(
+                        (containerId, inv, p) -> RadioMenu.forWalkie(containerId, inv, new ItemRadioSource(sp, hand)),
+                        Component.translatable("screen.walkietalkie.title")
+                ));
             }
             return InteractionResultHolder.success(stack);
         }
@@ -154,10 +179,10 @@ public class WalkieTalkieItem extends Item {
                 && !level.isClientSide
                 && entity instanceof ServerPlayer sp
                 && isEnabled(stack)) {
-            int freq = frequencyOf(stack);
-            RadioState.get(sp.server).startTransmitting(sp, freq);
-            notifyFrequency(sp.server, freq, WTSounds.TALK_START.get());
-            broadcastStaticState(sp.server, freq, true);
+            int deciFreq = FrequencyUtil.toDeci(frequencyOf(stack));
+            RadioState.get(sp.server).startTransmitting(sp, deciFreq);
+            notifyFrequency(sp.server, deciFreq, WTSounds.TALK_START.get());
+            broadcastStaticState(sp.server, deciFreq, true);
         }
     }
 
@@ -172,10 +197,10 @@ public class WalkieTalkieItem extends Item {
             togglePower(stack, sp); // QUICK TAP -> toggle power.
         } else {
             // Was talking -> stop.
-            int freq = frequencyOf(stack);
+            int deciFreq = FrequencyUtil.toDeci(frequencyOf(stack));
             RadioState.get(sp.server).stopTransmitting(sp);
-            notifyFrequency(sp.server, freq, WTSounds.TALK_STOP.get());
-            broadcastStaticState(sp.server, freq, false);
+            notifyFrequency(sp.server, deciFreq, WTSounds.TALK_STOP.get());
+            broadcastStaticState(sp.server, deciFreq, false);
         }
     }
 
@@ -218,7 +243,7 @@ public class WalkieTalkieItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext ctx, List<Component> lines, TooltipFlag flag) {
-        lines.add(Component.translatable("tooltip.walkietalkie.frequency", frequencyOf(stack))
+        lines.add(Component.translatable("tooltip.walkietalkie.frequency", FrequencyUtil.format(frequencyOf(stack)))
                 .withStyle(ChatFormatting.AQUA));
         lines.add(Component.translatable(isEnabled(stack) ? "tooltip.walkietalkie.on" : "tooltip.walkietalkie.off")
                 .withStyle(isEnabled(stack) ? ChatFormatting.GREEN : ChatFormatting.DARK_GRAY));

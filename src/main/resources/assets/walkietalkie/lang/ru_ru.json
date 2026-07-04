@@ -1,16 +1,23 @@
 {
   "item.walkietalkie.walkie_talkie": "Аналоговая Рация",
+  "item.walkietalkie.microphone_module": "Микрофонный модуль",
+  "item.walkietalkie.debug_module_a": "Отладочный модуль A",
+  "item.walkietalkie.debug_module_b": "Отладочный модуль B",
+  "block.walkietalkie.radio_station": "Радиостанция",
 
   "tooltip.walkietalkie.frequency": "Частота: %s",
   "tooltip.walkietalkie.on": "Рация: Включен",
   "tooltip.walkietalkie.off": "Рация: Выключен",
+  "tooltip.walkietalkie.module_debug": "Отладочный модуль %s — пока без эффекта",
 
   "msg.walkietalkie.on": "Рация включена",
   "msg.walkietalkie.off": "Рация выключена",
 
-  "screen.walkietalkie.title": "Рация",
+  "screen.walkietalkie.title": "Настройка рации",
   "screen.walkietalkie.frequency": "Радио-частота",
+  "screen.walkietalkie.frequency_value": "Частота: %s",
   "screen.walkietalkie.power": "Рация",
+  "screen.walkietalkie.mic": "Mic",
 
   "activation.walkietalkie.name": "Рация",
   "source_line.walkietalkie.name": "Рация",

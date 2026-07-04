@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "ICI",
+    "RGR",
+    "IRI"
+  ],
+  "key": {
+    "I": {"item": "minecraft:iron_ingot"},
+    "C": {"item": "walkietalkie:walkie_talkie"},
+    "R": {"item": "minecraft:redstone"},
+    "G": {"item": "minecraft:gold_ingot"}
+  },
+  "result": {
+    "id": "walkietalkie:radio_station",
+    "count": 1
+  }
+}

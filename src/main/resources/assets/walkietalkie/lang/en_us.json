@@ -1,16 +1,23 @@
 {
   "item.walkietalkie.walkie_talkie": "Analog Walkie Talkie",
+  "item.walkietalkie.microphone_module": "Microphone Module",
+  "item.walkietalkie.debug_module_a": "Debug Module A",
+  "item.walkietalkie.debug_module_b": "Debug Module B",
+  "block.walkietalkie.radio_station": "Radio Station",
 
   "tooltip.walkietalkie.frequency": "Frequency: %s",
   "tooltip.walkietalkie.on": "Radio: ON",
   "tooltip.walkietalkie.off": "Radio: OFF",
+  "tooltip.walkietalkie.module_debug": "Debug module %s — no effect yet",
 
   "msg.walkietalkie.on": "Walkie-talkie turned ON",
   "msg.walkietalkie.off": "Walkie-talkie turned OFF",
 
-  "screen.walkietalkie.title": "Walkie Talkie",
+  "screen.walkietalkie.title": "Radio Configuration",
   "screen.walkietalkie.frequency": "Frequency",
+  "screen.walkietalkie.frequency_value": "Frequency: %s",
   "screen.walkietalkie.power": "Radio",
+  "screen.walkietalkie.mic": "Mic",
 
   "activation.walkietalkie.name": "Walkie Talkie",
   "source_line.walkietalkie.name": "Walkie Talkie",
