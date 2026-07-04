@@ -1,0 +1,36 @@
+{
+  "item.walkietalkie.walkie_talkie": "Аналогова Рація",
+  "item.walkietalkie.microphone_module": "Мікрофонний модуль",
+  "item.walkietalkie.debug_module_a": "Модуль налагодження A",
+  "item.walkietalkie.debug_module_b": "Модуль налагодження B",
+  "block.walkietalkie.radio_station": "Радіо Станція",
+
+  "tooltip.walkietalkie.frequency": "Частота: %s",
+  "tooltip.walkietalkie.on": "Рація: Увімкнено",
+  "tooltip.walkietalkie.off": "Рація: Вимкнено",
+  "tooltip.walkietalkie.module_debug": "Модуль налагодження %s — пока без эффекта",
+
+  "msg.walkietalkie.on": "Рація увімкнена",
+  "msg.walkietalkie.off": "Рація вимкнена",
+
+  "screen.walkietalkie.title": "Налаштування рації",
+  "screen.walkietalkie.frequency": "Радіо-частота",
+  "screen.walkietalkie.frequency_value": "Частота: %s",
+  "screen.walkietalkie.power": "Рація",
+  "screen.walkietalkie.mic": "Mic",
+
+  "activation.walkietalkie.name": "Рація",
+  "source_line.walkietalkie.name": "Рація",
+
+  "config.walkietalkie.voice_default": "Голосова активація за замовчуванням",
+  "config.walkietalkie.voice_default.tooltip": "У нових гравців активація рації встановлена на «Голос» замість «Push-to-Talk», тож достатньо просто тримати пристрій у руці. Вимкніть цю функцію, щоб самостійно налаштувати її в параметрах активації Plasmo Voice.",
+
+  "config.walkietalkie.sfx_volume": "Гучність звуків рації",
+  "config.walkietalkie.sfx_volume.tooltip": "Гучність звукових сигналів увімкнення/вимкнення та початку/закінчення розмови.",
+
+  "subtitles.walkietalkie.toggle_on": "Рація вмикається",
+  "subtitles.walkietalkie.toggle_off": "Рація вимикається",
+  "subtitles.walkietalkie.talk_start": "Клацання рації",
+  "subtitles.walkietalkie.talk_stop": "Клацання рації",
+  "subtitles.walkietalkie.radio_static": "Шум ефіру"
+}
