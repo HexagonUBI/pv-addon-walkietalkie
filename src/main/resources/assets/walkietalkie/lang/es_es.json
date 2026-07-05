@@ -1,36 +1,36 @@
 {
-  "item.walkietalkie.walkie_talkie": "Analog Walkie Talkie",
-  "item.walkietalkie.microphone_module": "Microphone Module",
-  "item.walkietalkie.debug_module_a": "Debug Module A",
-  "item.walkietalkie.debug_module_b": "Debug Module B",
-  "block.walkietalkie.radio_station": "Radio Station",
+  "item.walkietalkie.walkie_talkie": "Walkie-talkie analógico",
+  "item.walkietalkie.microphone_module": "Módulo de micrófono",
+  "item.walkietalkie.debug_module_a": "Módulo de depuración A",
+  "item.walkietalkie.debug_module_b": "Módulo de depuración B",
+  "block.walkietalkie.radio_station": "Emisora de radio",
 
-  "tooltip.walkietalkie.frequency": "Frequency: %s",
-  "tooltip.walkietalkie.on": "Radio: ON",
-  "tooltip.walkietalkie.off": "Radio: OFF",
-  "tooltip.walkietalkie.module_debug": "Debug module %s — no effect yet",
+  "tooltip.walkietalkie.frequency": "Frecuencia: %s",
+  "tooltip.walkietalkie.on": "Radio: encendida",
+  "tooltip.walkietalkie.off": "Radio: apagada",
+  "tooltip.walkietalkie.module_debug": "Módulo de depuración %s — todavía no se nota ningún efecto",
 
-  "msg.walkietalkie.on": "Walkie-talkie turned ON",
-  "msg.walkietalkie.off": "Walkie-talkie turned OFF",
+  "msg.walkietalkie.on": "El walkie-talkie está encendido",
+  "msg.walkietalkie.off": "El walkie-talkie está apagado",
 
-  "screen.walkietalkie.title": "Radio Configuration",
-  "screen.walkietalkie.frequency": "Frequency",
-  "screen.walkietalkie.frequency_value": "Frequency: %s",
+  "screen.walkietalkie.title": "Configuración de la radio",
+  "screen.walkietalkie.frequency": "Frecuencia",
+  "screen.walkietalkie.frequency_value": "Frecuencia: %s",
   "screen.walkietalkie.power": "Radio",
   "screen.walkietalkie.mic": "Mic",
 
   "activation.walkietalkie.name": "Walkie Talkie",
   "source_line.walkietalkie.name": "Walkie Talkie",
 
-  "config.walkietalkie.voice_default": "Default to Voice Activation",
-  "config.walkietalkie.voice_default.tooltip": "New players get the Walkie Talkie's activation set to Voice instead of Push-to-Talk, so holding the item is the only button you need. Turn this off to manage it yourself in PV's Activation settings.",
+  "config.walkietalkie.voice_default": "Activación por voz predeterminada",
+  "config.walkietalkie.voice_default.tooltip": "A los nuevos jugadores se les configura la activación del walkie-talkie en «Voz» en lugar de «Pulsar para hablar», por lo que basta con sostener el objeto para utilizarlo. Desactiva esta opción para gestionarla tú mismo en los ajustes de activación de PV.",
 
-  "config.walkietalkie.sfx_volume": "Walkie-Talkie SFX Volume",
-  "config.walkietalkie.sfx_volume.tooltip": "Volume of the power on/off and talk start/stop click sounds.",
+  "config.walkietalkie.sfx_volume": "Volumen de los efectos de sonido del walkie-talkie",
+  "config.walkietalkie.sfx_volume.tooltip": "Volumen de los sonidos de encendido/apagado y de inicio/fin de llamada.",
 
-  "subtitles.walkietalkie.toggle_on": "Walkie-talkie powers on",
-  "subtitles.walkietalkie.toggle_off": "Walkie-talkie powers off",
-  "subtitles.walkietalkie.talk_start": "Radio clicks on",
-  "subtitles.walkietalkie.talk_stop": "Radio clicks off",
-  "subtitles.walkietalkie.radio_static": "Radio static"
+  "subtitles.walkietalkie.toggle_on": "El walkie-talkie se enciende",
+  "subtitles.walkietalkie.toggle_off": "El walkie-talkie se apaga",
+  "subtitles.walkietalkie.talk_start": "La radio se enciende",
+  "subtitles.walkietalkie.talk_stop": "La radio se apaga",
+  "subtitles.walkietalkie.radio_static": "Ruido de radio"
 }

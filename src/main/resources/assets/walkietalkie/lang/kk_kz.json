@@ -1,36 +1,36 @@
 {
-  "item.walkietalkie.walkie_talkie": "Аналоговая Рация",
-  "item.walkietalkie.microphone_module": "Микрофонный модуль",
-  "item.walkietalkie.debug_module_a": "Отладочный модуль A",
-  "item.walkietalkie.debug_module_b": "Отладочный модуль B",
-  "block.walkietalkie.radio_station": "Радио Станция",
+  "item.walkietalkie.walkie_talkie": "Аналогтық воки-токи",
+  "item.walkietalkie.microphone_module": "Микрофон модулі",
+  "item.walkietalkie.debug_module_a": "Модуль A-ны ақаусыздандыру",
+  "item.walkietalkie.debug_module_b": "Модуль B-ны ақаусыздандыру",
+  "block.walkietalkie.radio_station": "Радио станциясы",
 
-  "tooltip.walkietalkie.frequency": "Частота: %s",
-  "tooltip.walkietalkie.on": "Рация: Включен",
-  "tooltip.walkietalkie.off": "Рация: Выключен",
-  "tooltip.walkietalkie.module_debug": "Отладочный модуль %s — пока без эффекта",
+  "tooltip.walkietalkie.frequency": "Жиілік: %s",
+  "tooltip.walkietalkie.on": "Уоки-токи: Қосқанда",
+  "tooltip.walkietalkie.off": "Уоки-токи: Өшірулі",
+  "tooltip.walkietalkie.module_debug": "Қателерді түзету модулі %s — Әзірге нәтиже жоқ",
 
-  "msg.walkietalkie.on": "Рация включена",
-  "msg.walkietalkie.off": "Рация выключена",
+  "msg.walkietalkie.on": "Радио қосулы тұр",
+  "msg.walkietalkie.off": "Радио өшірілген",
 
-  "screen.walkietalkie.title": "Настройка рации",
-  "screen.walkietalkie.frequency": "Радио-частота",
-  "screen.walkietalkie.frequency_value": "Частота: %s",
-  "screen.walkietalkie.power": "Рация",
+  "screen.walkietalkie.title": "Радионы орнату",
+  "screen.walkietalkie.frequency": "Радиожиілік",
+  "screen.walkietalkie.frequency_value": "Жиілік: %s",
+  "screen.walkietalkie.power": "Воки-токи",
   "screen.walkietalkie.mic": "Mic",
 
-  "activation.walkietalkie.name": "Рация",
-  "source_line.walkietalkie.name": "Рация",
+  "activation.walkietalkie.name": "Воки-токи",
+  "source_line.walkietalkie.name": "Воки-токи",
 
-  "config.walkietalkie.voice_default": "Голосовая активация по умолчанию",
-  "config.walkietalkie.voice_default.tooltip": "У новых игроков активация рации выставляется на «Голос» вместо «Push-to-Talk», так что достаточно держать предмет в руке. Отключите, чтобы настроить это самостоятельно в настройках активации Plasmo Voice.",
+  "config.walkietalkie.voice_default": "Әдепкі бойынша дауыстық іске қосу",
+  "config.walkietalkie.voice_default.tooltip": "Жаңа ойыншылар үшін воки-токи іске қосу режимі «Push-to-Talk» орнына «Voice» ретінде орнатылған, сондықтан құрылғыны қолыңызда ұстап тұрсаңыз жеткілікті. Осы опцияны өшіріп, Plasmo Voice іске қосу баптауларында параметрлерді өзіңіз реттей аласыз.",
 
-  "config.walkietalkie.sfx_volume": "Громкость звуков рации",
-  "config.walkietalkie.sfx_volume.tooltip": "Громкость щелчков включения/выключения и начала/конца разговора.",
+  "config.walkietalkie.sfx_volume": "Радио дыбыс деңгейі",
+  "config.walkietalkie.sfx_volume.tooltip": "Телефонды қосу және өшіру кезінде, сондай-ақ қоңыраудың басында және соңындағы дыбыс деңгейі.",
 
-  "subtitles.walkietalkie.toggle_on": "Рация включается",
-  "subtitles.walkietalkie.toggle_off": "Рация выключается",
-  "subtitles.walkietalkie.talk_start": "Щелчок рации",
-  "subtitles.walkietalkie.talk_stop": "Щелчок рации",
-  "subtitles.walkietalkie.radio_static": "Шум эфира"
+  "subtitles.walkietalkie.toggle_on": "Воки-токи қосылды",
+  "subtitles.walkietalkie.toggle_off": "Воки-токи өшіп қалды",
+  "subtitles.walkietalkie.talk_start": "Воки-токиден бір шерту",
+  "subtitles.walkietalkie.talk_stop": "Воки-токиден бір шерту",
+  "subtitles.walkietalkie.radio_static": "Таратқыш шуы"
 }
