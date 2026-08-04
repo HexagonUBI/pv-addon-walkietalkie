@@ -13,10 +13,10 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 public class RadioScreen extends AbstractContainerScreen<RadioMenu> {
 
-    private static final ResourceLocation BTN_ON     = id("textures/gui/btn_on.png");
-    private static final ResourceLocation BTN_OFF    = id("textures/gui/btn_off.png");
-    private static final ResourceLocation BTN_ON_H   = id("textures/gui/btn_on_h.png");
-    private static final ResourceLocation BTN_OFF_H  = id("textures/gui/btn_off_h.png");
+    private static final ResourceLocation BTN_ON     = id("textures/gui/on.png");
+    private static final ResourceLocation BTN_OFF    = id("textures/gui/off.png");
+    private static final ResourceLocation BTN_ON_H   = id("textures/gui/on_s.png");
+    private static final ResourceLocation BTN_OFF_H  = id("textures/gui/off_s.png");
 
     private static final ResourceLocation RS_BG      = id("textures/gui/radiostation_container.png");
     private static final ResourceLocation RS_HANDLE  = id("textures/gui/radiostation_slider_red.png");

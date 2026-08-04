@@ -83,4 +83,7 @@ tasks.named<ProcessResources>("processResources") {
     filesMatching("META-INF/neoforge.mods.toml") {
         expand(props)
     }
+    filesMatching("assets/**/textures/**") {
+        name = name.lowercase()
+    }
 }

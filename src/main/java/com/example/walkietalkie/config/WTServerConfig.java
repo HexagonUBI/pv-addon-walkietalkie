@@ -9,6 +9,7 @@ public final class WTServerConfig {
     public static final ModConfigSpec.DoubleValue MIN_FREQUENCY;
     public static final ModConfigSpec.DoubleValue MAX_FREQUENCY;
     public static final ModConfigSpec.DoubleValue STATION_MIC_RANGE;
+    public static final ModConfigSpec.BooleanValue STATION_RADIO_EFFECT;
 
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -38,6 +39,14 @@ public final class WTServerConfig {
                         "with an active microphone module for their voice to be picked up and",
                         "relayed onto the station's frequency.")
                 .defineInRange("mic-range", 5.0, 0.0, 256.0);
+
+        STATION_RADIO_EFFECT = builder
+                .comment("Server-side radio effect on voice picked up by a Radio Station's microphone.",
+                        "Off by default: the client applies the radio effect on playback instead,",
+                        "which costs no server CPU and avoids a decode/re-encode quality loss.",
+                        "Enable this only if you need the effect for players without this mod",
+                        "installed - do not run both, or the effect is applied twice.")
+                .define("radio-effect", false);
 
         builder.pop();
 

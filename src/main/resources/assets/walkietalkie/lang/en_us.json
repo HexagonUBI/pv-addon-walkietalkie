@@ -27,6 +27,12 @@
   "config.walkietalkie.voice_default": "Default to Voice Activation",
   "config.walkietalkie.voice_default.tooltip": "New players get the Walkie Talkie's activation set to Voice instead of Push-to-Talk, so holding the item is the only button you need. Turn this off to manage it yourself in PV's Activation settings.",
 
+  "config.walkietalkie.radio_effect": "Radio Voice Effect",
+  "config.walkietalkie.radio_effect.tooltip": "Applies a radio effect to everything you hear through a walkie-talkie or Radio Station. Only affects this mod's audio - normal proximity chat is untouched.",
+
+  "config.walkietalkie.voice_changer_radio": "Use pv-voice-changer Radio preset",
+  "config.walkietalkie.voice_changer_radio.tooltip": "Requires the pv-voice-changer mod. While transmitting on a walkie-talkie, forces its Radio preset on your microphone and restores your previous preset afterwards. Note this also colours your normal proximity chat while you hold the talk button.",
+
   "config.walkietalkie.sfx_volume": "Walkie-Talkie SFX Volume",
   "config.walkietalkie.sfx_volume.tooltip": "Volume of the power on/off and talk start/stop click sounds.",
 

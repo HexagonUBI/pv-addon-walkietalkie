@@ -22,12 +22,19 @@ import su.plo.voice.api.addon.annotation.Addon;
 import su.plo.voice.api.client.PlasmoVoiceClient;
 import su.plo.voice.api.client.audio.capture.ClientActivation;
 import su.plo.voice.api.client.config.addon.AddonConfig;
+import su.plo.voice.api.client.audio.line.ClientSourceLine;
 import su.plo.voice.api.client.event.audio.capture.ClientActivationRegisteredEvent;
 import su.plo.voice.api.client.event.audio.capture.ClientActivationUnregisteredEvent;
+import su.plo.voice.api.client.event.audio.source.AudioSourceClosedEvent;
+import su.plo.voice.api.client.event.audio.source.AudioSourceWriteEvent;
 import su.plo.voice.api.event.EventSubscribe;
+import su.plo.voice.proto.data.audio.source.SourceInfo;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Addon(
         id = "wt-addon-client",
@@ -54,6 +61,10 @@ public final class WalkieVoiceClientAddon implements AddonInitializer {
     private AddonConfig config;
     private BooleanConfigEntry voiceByDefaultEntry;
     private DoubleConfigEntry sfxVolumeEntry;
+    private BooleanConfigEntry radioEffectEntry;
+    private BooleanConfigEntry voiceChangerEntry;
+
+    private final Map<UUID, RadioEffect> sourceEffects = new ConcurrentHashMap<>();
 
     @Override
     public void onAddonInitialize() {
@@ -77,7 +88,49 @@ public final class WalkieVoiceClientAddon implements AddonInitializer {
                 "%",
                 0.3D, 0.0D, 1.0D
         );
+        this.radioEffectEntry = config.addToggle(
+                "radio-effect",
+                McTextComponent.translatable("config.walkietalkie.radio_effect"),
+                McTextComponent.translatable("config.walkietalkie.radio_effect.tooltip"),
+                true
+        );
+        this.voiceChangerEntry = config.addToggle(
+                "voice-changer-radio",
+                McTextComponent.translatable("config.walkietalkie.voice_changer_radio"),
+                McTextComponent.translatable("config.walkietalkie.voice_changer_radio.tooltip"),
+                false
+        );
         sfxVolumeEntry.addChangeListener(volume -> sendSfxVolume());
+    }
+
+    @EventSubscribe
+    public void onSourceWrite(AudioSourceWriteEvent event) {
+        if (radioEffectEntry == null || !radioEffectEntry.value()) return;
+
+        SourceInfo info = event.getSource().getSourceInfo();
+        if (info == null || !isWalkieLine(info)) return;
+
+        short[] samples = event.getSamples();
+        if (samples == null || samples.length == 0) return;
+
+        RadioEffect effect = sourceEffects.computeIfAbsent(info.getId(), k -> new RadioEffect());
+        effect.process(samples, info.isStereo() ? 2 : 1);
+    }
+
+    @EventSubscribe
+    public void onSourceClosed(AudioSourceClosedEvent event) {
+        SourceInfo info = event.getSource().getSourceInfo();
+        if (info != null) sourceEffects.remove(info.getId());
+    }
+
+    private boolean isWalkieLine(SourceInfo info) {
+        UUID lineId = info.getLineId();
+        if (lineId == null) return false;
+        return voiceClient.getSourceLineManager()
+                .getLineByName(WalkieVoiceServerAddon.SOURCE_LINE_NAME)
+                .map(ClientSourceLine::getId)
+                .map(lineId::equals)
+                .orElse(false);
     }
 
     private void onLoggingIn(ClientPlayerNetworkEvent.LoggingIn event) {
@@ -87,6 +140,8 @@ public final class WalkieVoiceClientAddon implements AddonInitializer {
 
     private void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
         WTClientSounds.stopAll();
+        transmitting = false;
+        VoiceChangerBridge.endRadio();
     }
 
     private void sendSfxVolume() {
@@ -145,6 +200,11 @@ public final class WalkieVoiceClientAddon implements AddonInitializer {
 
         if (shouldTransmit != transmitting) {
             transmitting = shouldTransmit;
+            if (shouldTransmit && voiceChangerEntry != null && voiceChangerEntry.value()) {
+                VoiceChangerBridge.beginRadio();
+            } else if (!shouldTransmit) {
+                VoiceChangerBridge.endRadio();
+            }
             walkieActivation.setDisabled(!shouldTransmit);
         }
     }

@@ -15,6 +15,8 @@ import su.plo.slib.api.permission.PermissionDefault;
 import su.plo.slib.api.server.entity.player.McServerPlayer;
 import su.plo.slib.api.server.position.ServerPos3d;
 import su.plo.slib.api.server.world.McServerWorld;
+import su.plo.voice.api.audio.codec.AudioDecoder;
+import su.plo.voice.api.audio.codec.AudioEncoder;
 import su.plo.voice.api.addon.AddonInitializer;
 import su.plo.voice.api.addon.InjectPlasmoVoice;
 import su.plo.voice.api.addon.annotation.Addon;
@@ -70,6 +72,55 @@ public final class WalkieVoiceServerAddon implements AddonInitializer {
     private record SpeakStation(ServerLevel level, int deciFrequency) {}
 
     private volatile boolean speakEventSeen = false;
+    private volatile boolean radioEffectBroken = false;
+
+    private final Map<UUID, RadioProcessor> radioProcessors = new ConcurrentHashMap<>();
+
+    private final class RadioProcessor {
+        private final AudioDecoder decoder;
+        private final AudioEncoder encoder;
+        private final RadioAudioEffect effect = new RadioAudioEffect();
+
+        private RadioProcessor() throws Exception {
+            this.decoder = voiceServer.createOpusDecoder(false);
+            this.encoder = voiceServer.createOpusEncoder(false);
+            this.decoder.open();
+            this.encoder.open();
+        }
+
+        private synchronized byte[] apply(byte[] data) throws Exception {
+            short[] pcm = decoder.decode(data);
+            effect.process(pcm, 1);
+            return encoder.encode(pcm);
+        }
+
+        private void close() {
+            try { decoder.close(); } catch (Exception ignored) {}
+            try { encoder.close(); } catch (Exception ignored) {}
+        }
+    }
+
+    private byte[] applyRadioEffect(UUID speakerId, byte[] data) {
+        if (radioEffectBroken || !WTServerConfig.STATION_RADIO_EFFECT.get()) return data;
+        try {
+            RadioProcessor proc = radioProcessors.get(speakerId);
+            if (proc == null) {
+                proc = new RadioProcessor();
+                RadioProcessor existing = radioProcessors.putIfAbsent(speakerId, proc);
+                if (existing != null) { proc.close(); proc = existing; }
+            }
+            return proc.apply(data);
+        } catch (Exception e) {
+            radioEffectBroken = true;
+            LOGGER.error("Radio effect processing failed - relaying station audio unprocessed from now on", e);
+            return data;
+        }
+    }
+
+    private void releaseRadioProcessor(UUID speakerId) {
+        RadioProcessor proc = radioProcessors.remove(speakerId);
+        if (proc != null) proc.close();
+    }
 
     @Override
     public void onAddonInitialize() {
@@ -117,6 +168,8 @@ public final class WalkieVoiceServerAddon implements AddonInitializer {
         proximityRelaySources.clear();
         speakStations.clear();
         proximityActiveFreqs.clear();
+        radioProcessors.values().forEach(RadioProcessor::close);
+        radioProcessors.clear();
         INSTANCE = null;
     }
 
@@ -256,13 +309,20 @@ public final class WalkieVoiceServerAddon implements AddonInitializer {
 
             double micRange = WTServerConfig.STATION_MIC_RANGE.get();
 
+            Map<BlockPos, SpeakStation> inRange = new java.util.HashMap<>();
             speakStations.forEach((pos, station) -> {
                 if (station.level() != sp.level()) return;
                 double dx = pos.getX() + 0.5 - sp.getX();
                 double dy = pos.getY() + 0.5 - sp.getY();
                 double dz = pos.getZ() + 0.5 - sp.getZ();
                 if (dx * dx + dy * dy + dz * dz > micRange * micRange) return;
+                inRange.put(pos, station);
+            });
+            if (inRange.isEmpty()) return;
 
+            byte[] radioData = applyRadioEffect(speakerId, packet.getData());
+
+            inRange.forEach((pos, station) -> {
                 int freq = station.deciFrequency();
                 Set<Integer> playerFreqs = proximityActiveFreqs.computeIfAbsent(speakerId, k -> ConcurrentHashMap.newKeySet());
                 if (playerFreqs.add(freq)) {
@@ -273,8 +333,8 @@ public final class WalkieVoiceServerAddon implements AddonInitializer {
                 ServerBroadcastSource src = proximityRelaySources.computeIfAbsent(
                         speakerId, k -> sourceLine.createBroadcastSource(false));
                 src.setPlayers(resolveListeners(freq, speakerId));
-                src.sendAudioFrame(packet.getData(), packet.getSequenceNumber(), info);
-                relayToStations(freq, packet.getData(), packet.getSequenceNumber(), info, pos);
+                src.sendAudioFrame(radioData, packet.getSequenceNumber(), info);
+                relayToStations(freq, radioData, packet.getSequenceNumber(), info, pos);
             });
         } catch (Exception e) {
             LOGGER.error("onPlayerSpeak failed", e);
@@ -291,6 +351,8 @@ public final class WalkieVoiceServerAddon implements AddonInitializer {
 
             ServerBroadcastSource src = proximityRelaySources.remove(speakerId);
             if (src != null) src.remove();
+
+            releaseRadioProcessor(speakerId);
         } catch (Exception e) {
             LOGGER.error("onPlayerSpeakEnd failed", e);
         }
