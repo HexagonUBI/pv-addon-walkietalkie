@@ -11,135 +11,113 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-/**
- * Screen for both the handheld walkie-talkie and the placed Radio Station.
- *
- * Layout (coords relative to leftPos/topPos):
- *   y=0..71  : radio config panel (180px texture blitted at leftPos-2)
- *   y=76     : "Inventory" label
- *   y=88..163: player inventory rows (3×9) + hotbar
- *
- * Controls:
- *   - Slider (drag): coarse frequency tuning
- *   - [<] [>] buttons: ±0.1 MHz fine tuning
- *   - Mouse wheel over slider: ±0.1 MHz
- *   - On/Off button
- *   - Mic button (stations with mic slot only)
- */
 public class RadioScreen extends AbstractContainerScreen<RadioMenu> {
 
-    // textures
-    private static final ResourceLocation PANEL   = id("textures/gui/radio_configuration_screen.png");
-    private static final ResourceLocation BTN_OFF = id("textures/gui/radio_configuration_screen_off.png");
-    private static final ResourceLocation BTN_ON  = id("textures/gui/radio_configuration_screen_on.png");
-    private static final ResourceLocation SLIDER_HANDLE = id("textures/gui/radio_configuration_screen_slider.png");
-    private static final ResourceLocation VANILLA_INV =
-            ResourceLocation.withDefaultNamespace("textures/gui/container/inventory.png");
+    private static final ResourceLocation BTN_ON     = id("textures/gui/btn_on.png");
+    private static final ResourceLocation BTN_OFF    = id("textures/gui/btn_off.png");
+    private static final ResourceLocation BTN_ON_H   = id("textures/gui/btn_on_h.png");
+    private static final ResourceLocation BTN_OFF_H  = id("textures/gui/btn_off_h.png");
+
+    private static final ResourceLocation RS_BG      = id("textures/gui/radiostation_container.png");
+    private static final ResourceLocation RS_HANDLE  = id("textures/gui/radiostation_slider_red.png");
+    private static final ResourceLocation RS_ARR_L   = id("textures/gui/radio_precise_arrow_l.png");
+    private static final ResourceLocation RS_ARR_R   = id("textures/gui/radio_precise_arrow_r.png");
+    private static final ResourceLocation RS_ARR_LH  = id("textures/gui/radio_precise_arrow_l_h.png");
+    private static final ResourceLocation RS_ARR_RH  = id("textures/gui/radio_precise_arrow_r_h.png");
+
+    private static final ResourceLocation WT_BG      = id("textures/gui/walkie_talkie/container.png");
+    private static final ResourceLocation WT_HANDLE  = id("textures/gui/walkie_talkie/slider.png");
+    private static final ResourceLocation WT_ARR_L   = id("textures/gui/walkie_talkie/arrow_l.png");
+    private static final ResourceLocation WT_ARR_R   = id("textures/gui/walkie_talkie/arrow_r.png");
+    private static final ResourceLocation WT_ARR_LH  = id("textures/gui/walkie_talkie/arrow_l_h.png");
+    private static final ResourceLocation WT_ARR_RH  = id("textures/gui/walkie_talkie/arrow_r_h.png");
+
+    private static final int TRACK_X = 63, TRACK_Y = 19, TRACK_W = 104, TRACK_H = 16;
+    private static final int HANDLE_W = 5, HANDLE_H = 16;
+    private static final int ARR_L_X = 15, ARR_R_X = 49, ARR_Y = 23, ARR_W = 5, ARR_H = 8;
+    private static final int TOG_W = 16, TOG_H = 16;
+    private static final int MIC_BTN_X = 44, MIC_BTN_Y = 36;
+    private static final int SPK_BTN_X = 44, SPK_BTN_Y = 54;
+
+    private static final int FREQ_BOX_X = 20, FREQ_BOX_Y = 21, FREQ_BOX_W = 29, FREQ_BOX_H = 12;
+    private static final int MHZ_LABEL_X = 8, MHZ_LABEL_Y = 8;
+    private static final int FREQ_LABEL_X = 65, FREQ_LABEL_Y = 8;
 
     private static ResourceLocation id(String path) {
         return ResourceLocation.fromNamespaceAndPath(WalkieTalkieMod.MOD_ID, path);
     }
 
-    // panel
-    private static final int PANEL_W = 180, PANEL_H = 71;
-    private static final int PANEL_DX = -2; // shift left to centre 180px panel in 176px screen
-
-    // slider track (texture-space, adjusted for PANEL_DX)
-    private static final int TRACK_X = 4, TRACK_Y = 18, TRACK_W = 94, TRACK_H = 12;
-    private static final int HANDLE_W = 6, HANDLE_H = 12;
-
-    // on/off button (texture-space adjusted by PANEL_DX)
-    private static final int BTN_X = 103, BTN_Y = 17, BTN_W = 23, BTN_H = 14;
-
-    // fine-tune arrow buttons: [<] left of frequency label, [>] right of it
-    private static final int ARROW_W = 10, ARROW_H = 10;
-    private static final int ARROW_L_X = 4,   ARROW_Y = 5;  // [<]
-    private static final int ARROW_R_X = 130,  /*same y*/     ARROW_RY = 5; // [>]
-
-    // mic button (station only, right side of panel near power button)
-    private static final int MIC_BTN_X = 103, MIC_BTN_Y = 34, MIC_BTN_W = 23, MIC_BTN_H = 14;
-
-    // player inventory
-    private static final int INV_Y  = 88;
-    private static final int INV_LX = 7;
-    // vanilla inventory.png crop: V=83, H=76 = 3 rows(54) + gap(4) + hotbar(18)
-    private static final int INV_VU = 7, INV_VV = 83, INV_VW = 162, INV_VH = 76;
-    private static final int LABEL_Y = 76; // 12px above INV_Y
-
-    // state
-    private boolean draggingSlider = false;
+    private boolean dragging = false;
     private int lastSentDeci = Integer.MIN_VALUE;
+    private final boolean station;
 
-    public RadioScreen(RadioMenu menu, Inventory playerInv, Component title) {
-        super(menu, playerInv, title);
-        this.imageWidth = 176;
-        this.imageHeight = INV_Y + INV_VH; // 88 + 76 = 164
-        this.inventoryLabelY = LABEL_Y;
+    private final ResourceLocation bg, handleTex, arrL, arrR, arrLH, arrRH;
+
+    public RadioScreen(RadioMenu menu, Inventory inv, Component title) {
+        super(menu, inv, title);
+        this.station = menu.hasMicSlot();
+        this.imageWidth  = 176;
+        this.imageHeight = 166;
+        this.inventoryLabelY = -100;
+
+        this.bg       = station ? RS_BG      : WT_BG;
+        this.handleTex= station ? RS_HANDLE  : WT_HANDLE;
+        this.arrL     = station ? RS_ARR_L   : WT_ARR_L;
+        this.arrR     = station ? RS_ARR_R   : WT_ARR_R;
+        this.arrLH    = station ? RS_ARR_LH  : WT_ARR_LH;
+        this.arrRH    = station ? RS_ARR_RH  : WT_ARR_RH;
     }
 
     @Override
-    protected void renderBg(GuiGraphics gfx, float partialTick, int mouseX, int mouseY) {
-        int x = this.leftPos, y = this.topPos;
+    protected void renderBg(GuiGraphics gfx, float dt, int mx, int my) {
+        int x = leftPos, y = topPos;
 
-        // Radio panel (180px, centred in 176px screen)
-        gfx.blit(PANEL, x + PANEL_DX, y, 0, 0, PANEL_W, PANEL_H, PANEL_W, PANEL_H);
+        gfx.blit(bg, x, y, 0, 0, 176, 166, 176, 166);
 
-        // Slider handle
-        gfx.blit(SLIDER_HANDLE,
-                x + TRACK_X + handleOffset(), y + TRACK_Y,
-                0, 0, HANDLE_W, HANDLE_H, HANDLE_W, HANDLE_H);
+        int hx = x + TRACK_X + handleOffset();
+        gfx.blit(handleTex, hx, y + TRACK_Y, 0, 0, HANDLE_W, HANDLE_H, HANDLE_W, HANDLE_H);
 
-        // On/Off button
-        gfx.blit(menu.isEnabled() ? BTN_ON : BTN_OFF,
-                x + BTN_X, y + BTN_Y, 0, 0, BTN_W, BTN_H, BTN_W, BTN_H);
+        boolean lHov = inArrowL(mx, my), rHov = inArrowR(mx, my);
+        gfx.blit(lHov ? arrLH : arrL, x + ARR_L_X, y + ARR_Y, 0, 0, ARR_W, ARR_H, ARR_W, ARR_H);
+        gfx.blit(rHov ? arrRH : arrR, x + ARR_R_X, y + ARR_Y, 0, 0, ARR_W, ARR_H, ARR_W, ARR_H);
 
-        // Mic button (station only)
-        if (menu.hasMicSlot()) {
-            boolean micOn = menu.isMicActive();
-            gfx.blit(micOn ? BTN_ON : BTN_OFF,
-                    x + MIC_BTN_X, y + MIC_BTN_Y, 0, 0, MIC_BTN_W, MIC_BTN_H, MIC_BTN_W, MIC_BTN_H);
+        if (station) {
+            boolean micHov = inMicBtn(mx, my), spkHov = inSpkBtn(mx, my);
+            ResourceLocation micTex = menu.isMicActive() ? (micHov ? BTN_ON_H : BTN_ON) : (micHov ? BTN_OFF_H : BTN_OFF);
+            ResourceLocation spkTex = menu.isOutputActive() ? (spkHov ? BTN_ON_H : BTN_ON) : (spkHov ? BTN_OFF_H : BTN_OFF);
+            gfx.blit(micTex, x + MIC_BTN_X, y + MIC_BTN_Y, 0, 0, TOG_W, TOG_H, TOG_W, TOG_H);
+            gfx.blit(spkTex, x + SPK_BTN_X, y + SPK_BTN_Y, 0, 0, TOG_W, TOG_H, TOG_W, TOG_H);
         }
-
-        // Fine-tune buttons [<] [>]
-        gfx.fill(x + ARROW_L_X,  y + ARROW_Y, x + ARROW_L_X + ARROW_W,  y + ARROW_Y + ARROW_H, 0xFF555555);
-        gfx.fill(x + ARROW_R_X, y + ARROW_RY, x + ARROW_R_X + ARROW_W, y + ARROW_RY + ARROW_H, 0xFF555555);
-        gfx.drawString(this.font, "<", x + ARROW_L_X + 2, y + ARROW_Y + 1, 0xFFFFFFFF, false);
-        gfx.drawString(this.font, ">", x + ARROW_R_X + 2, y + ARROW_RY + 1, 0xFFFFFFFF, false);
-
-        // Player inventory slot backgrounds (borrowed from inventory.png for texture-pack compat)
-        gfx.blit(VANILLA_INV, x + INV_LX, y + INV_Y, INV_VU, INV_VV, INV_VW, INV_VH, 176, 166);
     }
-
-    @Override
-    protected void renderLabels(GuiGraphics gfx, int mouseX, int mouseY) {
-        // Frequency display with MHz suffix
-        Component freqLabel = Component.translatable(
-                "screen.walkietalkie.frequency_value",
-                FrequencyUtil.format(menu.getFrequency()) + " MHz");
-        gfx.drawString(this.font, freqLabel, 15 + (-PANEL_DX), 6, 0xFFA0FFC0, false);
-
-        // Mic label (station only)
-        if (menu.hasMicSlot()) {
-            gfx.drawString(this.font,
-                    Component.translatable("screen.walkietalkie.mic"),
-                    MIC_BTN_X - 20, MIC_BTN_Y + 3, 0xFFA0FFC0, false);
-        }
-
-        // "Inventory" above player inventory rows
-        gfx.drawString(this.font, this.playerInventoryTitle, INV_LX, LABEL_Y, 0x404040, false);
-    }
-
-    // ---- slider math ----
 
     private int handleOffset() {
-        float min = FrequencyUtil.min(), max = FrequencyUtil.max();
-        float t = max > min ? (menu.getFrequency() - min) / (max - min) : 0F;
-        t = Math.max(0F, Math.min(1F, t));
-        return Math.round(t * (TRACK_W - HANDLE_W));
+        int usable = TRACK_W - HANDLE_W;
+        return Math.round(freqT() * usable);
     }
 
-    private float freqForSliderX(double mx) {
-        int rel = (int) Math.round(mx) - (this.leftPos + TRACK_X);
+    @Override
+    protected void renderLabels(GuiGraphics gfx, int mx, int my) {
+        String freqStr = FrequencyUtil.format(menu.getFrequency());
+        int fw = font.width(freqStr);
+        int cx = FREQ_BOX_X + Math.max(0, (FREQ_BOX_W - fw) / 2);
+        int cy = FREQ_BOX_Y + (FREQ_BOX_H - font.lineHeight) / 2 + 1;
+        gfx.drawString(font, freqStr, cx, cy, 0xFF5E5B4A, false);
+
+        gfx.drawString(font, Component.translatable("screen.walkietalkie.mhz"),
+                MHZ_LABEL_X, MHZ_LABEL_Y, 0xFF4F3D2D, false);
+        gfx.drawString(font, Component.translatable("screen.walkietalkie.frequency"),
+                FREQ_LABEL_X, FREQ_LABEL_Y, 0xFF364246, false);
+    }
+
+    private float freqT() {
+        float min = FrequencyUtil.min(), max = FrequencyUtil.max();
+        if (max <= min) return 0F;
+        float t = (menu.getFrequency() - min) / (max - min);
+        return Math.max(0F, Math.min(1F, t));
+    }
+
+    private float freqFromSliderX(double mx) {
+        int rel = (int) Math.round(mx) - (leftPos + TRACK_X);
         int usable = TRACK_W - HANDLE_W;
         float t = usable > 0 ? (rel - HANDLE_W / 2F) / usable : 0F;
         t = Math.max(0F, Math.min(1F, t));
@@ -147,101 +125,75 @@ public class RadioScreen extends AbstractContainerScreen<RadioMenu> {
         return FrequencyUtil.fromDeci(FrequencyUtil.toDeci(raw));
     }
 
-    // ---- hit-test helpers ----
-
     private boolean inTrack(double mx, double my) {
         return mx >= leftPos + TRACK_X && mx < leftPos + TRACK_X + TRACK_W
                 && my >= topPos + TRACK_Y && my < topPos + TRACK_Y + TRACK_H;
     }
 
-    private boolean inButton(double mx, double my) {
-        return mx >= leftPos + BTN_X && mx < leftPos + BTN_X + BTN_W
-                && my >= topPos + BTN_Y && my < topPos + BTN_Y + BTN_H;
+    private boolean inArrowL(double mx, double my) {
+        return mx >= leftPos + ARR_L_X && mx < leftPos + ARR_L_X + ARR_W
+                && my >= topPos + ARR_Y  && my < topPos + ARR_Y + ARR_H;
     }
 
-    private boolean inMicButton(double mx, double my) {
-        return menu.hasMicSlot()
-                && mx >= leftPos + MIC_BTN_X && mx < leftPos + MIC_BTN_X + MIC_BTN_W
-                && my >= topPos + MIC_BTN_Y && my < topPos + MIC_BTN_Y + MIC_BTN_H;
+    private boolean inArrowR(double mx, double my) {
+        return mx >= leftPos + ARR_R_X && mx < leftPos + ARR_R_X + ARR_W
+                && my >= topPos + ARR_Y  && my < topPos + ARR_Y + ARR_H;
     }
 
-    private boolean inArrowLeft(double mx, double my) {
-        return mx >= leftPos + ARROW_L_X && mx < leftPos + ARROW_L_X + ARROW_W
-                && my >= topPos + ARROW_Y && my < topPos + ARROW_Y + ARROW_H;
+    private boolean inMicBtn(double mx, double my) {
+        return station && mx >= leftPos + MIC_BTN_X && mx < leftPos + MIC_BTN_X + TOG_W
+                && my >= topPos + MIC_BTN_Y && my < topPos + MIC_BTN_Y + TOG_H;
     }
 
-    private boolean inArrowRight(double mx, double my) {
-        return mx >= leftPos + ARROW_R_X && mx < leftPos + ARROW_R_X + ARROW_W
-                && my >= topPos + ARROW_RY && my < topPos + ARROW_RY + ARROW_H;
+    private boolean inSpkBtn(double mx, double my) {
+        return station && mx >= leftPos + SPK_BTN_X && mx < leftPos + SPK_BTN_X + TOG_W
+                && my >= topPos + SPK_BTN_Y && my < topPos + SPK_BTN_Y + TOG_H;
     }
-
-    // ---- input ----
 
     @Override
     public boolean mouseClicked(double mx, double my, int btn) {
         if (btn == 0) {
-            if (inTrack(mx, my)) {
-                draggingSlider = true;
-                sendFreq(freqForSliderX(mx));
-                return true;
-            }
-            if (inButton(mx, my)) {
-                send(FrequencyUtil.toDeci(menu.getFrequency()), !menu.isEnabled(), menu.isMicActive());
-                return true;
-            }
-            if (inMicButton(mx, my)) {
-                send(FrequencyUtil.toDeci(menu.getFrequency()), menu.isEnabled(), !menu.isMicActive());
-                return true;
-            }
-            if (inArrowLeft(mx, my)) {
-                nudgeFreq(-1);
-                return true;
-            }
-            if (inArrowRight(mx, my)) {
-                nudgeFreq(+1);
-                return true;
-            }
+            if (inTrack(mx, my)) { dragging = true; sendFreq(freqFromSliderX(mx)); return true; }
+            if (inArrowL(mx, my)) { nudge(-1); return true; }
+            if (inArrowR(mx, my)) { nudge(+1); return true; }
+            if (inMicBtn(mx, my)) { send(menu.getFrequency(), menu.isEnabled(), !menu.isMicActive(), menu.isOutputActive()); return true; }
+            if (inSpkBtn(mx, my)) { send(menu.getFrequency(), menu.isEnabled(), menu.isMicActive(), !menu.isOutputActive()); return true; }
         }
         return super.mouseClicked(mx, my, btn);
     }
 
     @Override
     public boolean mouseDragged(double mx, double my, int btn, double dx, double dy) {
-        if (draggingSlider && btn == 0) { sendFreq(freqForSliderX(mx)); return true; }
+        if (dragging && btn == 0) {
+            sendFreq(freqFromSliderX(mx));
+            return true;
+        }
         return super.mouseDragged(mx, my, btn, dx, dy);
     }
 
     @Override
     public boolean mouseReleased(double mx, double my, int btn) {
-        if (btn == 0) draggingSlider = false;
+        if (btn == 0) dragging = false;
         return super.mouseReleased(mx, my, btn);
     }
 
-    @Override
-    public boolean mouseScrolled(double mx, double my, double scrollX, double scrollY) {
-        if (inTrack(mx, my) || (mx >= leftPos + TRACK_X && mx < leftPos + TRACK_X + TRACK_W
-                && my >= topPos && my < topPos + PANEL_H)) {
-            nudgeFreq(scrollY > 0 ? +1 : -1);
-            return true;
-        }
-        return super.mouseScrolled(mx, my, scrollX, scrollY);
-    }
-
-    private void nudgeFreq(int direction) {
-        int deci = FrequencyUtil.toDeci(menu.getFrequency()) + direction;
+    private void nudge(int dir) {
+        int deci = FrequencyUtil.toDeci(menu.getFrequency()) + dir;
         deci = Math.max(FrequencyUtil.toDeci(FrequencyUtil.min()),
-                Math.min(FrequencyUtil.toDeci(FrequencyUtil.max()), deci));
-        if (deci != lastSentDeci) send(deci, menu.isEnabled(), menu.isMicActive());
+               Math.min(FrequencyUtil.toDeci(FrequencyUtil.max()), deci));
+        if (deci != lastSentDeci)
+            send(FrequencyUtil.fromDeci(deci), menu.isEnabled(), menu.isMicActive(), menu.isOutputActive());
     }
 
     private void sendFreq(float freq) {
         int deci = FrequencyUtil.toDeci(freq);
-        if (deci != lastSentDeci) send(deci, menu.isEnabled(), menu.isMicActive());
+        if (deci != lastSentDeci) send(freq, menu.isEnabled(), menu.isMicActive(), menu.isOutputActive());
     }
 
-    private void send(int deciFrequency, boolean enabled, boolean micActive) {
-        lastSentDeci = deciFrequency;
+    private void send(float freq, boolean enabled, boolean mic, boolean spk) {
+        int deci = FrequencyUtil.toDeci(freq);
+        lastSentDeci = deci;
         PacketDistributor.sendToServer(
-                new RadioMenuUpdateC2S(menu.containerId, deciFrequency, enabled, micActive));
+                new RadioMenuUpdateC2S(menu.containerId, deci, enabled, mic, spk));
     }
 }

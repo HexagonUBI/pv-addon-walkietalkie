@@ -10,14 +10,6 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
-/**
- * Keeps the listener cache fresh for cases that don't go through a payload
- * (dropping/picking up a walkie, dying, etc.). Once per second is plenty.
- *
- * Also handles the disconnect edge case: if a player logs out while holding
- * RMB (transmitting), the static loop on listeners' clients would play forever
- * unless we explicitly broadcast a stop.
- */
 @EventBusSubscriber(modid = WalkieTalkieMod.MOD_ID)
 public final class RadioTicker {
 
@@ -40,8 +32,6 @@ public final class RadioTicker {
         RadioState state = RadioState.get(server);
         Integer freq = state.getTransmitFrequency(sp.getUUID());
         if (freq != null) {
-            // Broadcast stop before cleaning up transmit state so listenersFor still
-            // has the frequency populated.
             WalkieTalkieItem.broadcastStaticState(server, freq, false);
             state.stopTransmitting(sp);
         }

@@ -1,23 +1,33 @@
 package com.example.walkietalkie.voice;
 
+import com.example.walkietalkie.config.WTServerConfig;
 import com.example.walkietalkie.util.FrequencyUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import su.plo.slib.api.permission.PermissionDefault;
+import su.plo.slib.api.server.entity.player.McServerPlayer;
 import su.plo.slib.api.server.position.ServerPos3d;
 import su.plo.slib.api.server.world.McServerWorld;
 import su.plo.voice.api.addon.AddonInitializer;
 import su.plo.voice.api.addon.InjectPlasmoVoice;
 import su.plo.voice.api.addon.annotation.Addon;
+import su.plo.voice.api.event.EventPriority;
+import su.plo.voice.api.event.EventSubscribe;
 import su.plo.voice.api.server.PlasmoVoiceServer;
 import su.plo.voice.api.server.audio.capture.PlayerActivationInfo;
 import su.plo.voice.api.server.audio.capture.ServerActivation;
 import su.plo.voice.api.server.audio.line.ServerSourceLine;
 import su.plo.voice.api.server.audio.source.ServerBroadcastSource;
 import su.plo.voice.api.server.audio.source.ServerStaticSource;
+import su.plo.voice.api.server.event.audio.source.PlayerSpeakEndEvent;
+import su.plo.voice.api.server.event.audio.source.PlayerSpeakEvent;
 import su.plo.voice.api.server.player.VoicePlayer;
 import su.plo.voice.api.server.player.VoiceServerPlayer;
 import su.plo.voice.proto.packets.tcp.serverbound.PlayerAudioEndPacket;
@@ -29,25 +39,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Plasmo Voice server side.
- *
- * Audio relay paths:
- *
- *   PLAYER → PLAYERS: player using a walkie-talkie broadcasts to other players with the
- *     same frequency via a ServerBroadcastSource.
- *
- *   PLAYER → STATION (listen): any transmitting player's audio is also sent through a
- *     ServerStaticSource at each powered-on Radio Station on the same frequency, so
- *     nearby players hear the radio "speaking" -- even without their own walkie.
- *
- *   PLAYER → STATION (speak/capture): if a player is within range of a powered-on
- *     station whose mic button is active, ANY voice activation they make (proximity chat,
- *     another walkie-talkie, etc.) gets intercepted and relayed to that station's
- *     frequency. This is the "speak into the station" path, toggled by the mic button.
- *
- * Call {@link #onStationUpdated} to register / update / remove a station.
- */
 @Addon(
         id = "wt-addon-server",
         name = "Walkie Talkie",
@@ -55,6 +46,8 @@ import java.util.concurrent.ConcurrentHashMap;
         authors = {"SimpleFox"}
 )
 public final class WalkieVoiceServerAddon implements AddonInitializer {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger("WalkieTalkie/Voice");
 
     private static WalkieVoiceServerAddon INSTANCE;
 
@@ -68,20 +61,20 @@ public final class WalkieVoiceServerAddon implements AddonInitializer {
     private ServerActivation activation;
     private ServerSourceLine sourceLine;
 
-    /** One broadcast source per currently-transmitting player UUID. */
     private final Map<UUID, ServerBroadcastSource> speakerSources = new ConcurrentHashMap<>();
-
-    /**
-     * Static sources used when a station LISTENS (plays received audio to nearby players).
-     * Present whenever a station is powered on, regardless of mic module.
-     */
     private final Map<BlockPos, ServerStaticSource> stationListenSources = new ConcurrentHashMap<>();
+    private final Map<BlockPos, SpeakStation> speakStations = new ConcurrentHashMap<>();
+    private final Map<UUID, ServerBroadcastSource> proximityRelaySources = new ConcurrentHashMap<>();
+    private final Map<UUID, Set<Integer>> proximityActiveFreqs = new ConcurrentHashMap<>();
 
-    // ---- lifecycle ----
+    private record SpeakStation(ServerLevel level, int deciFrequency) {}
+
+    private volatile boolean speakEventSeen = false;
 
     @Override
     public void onAddonInitialize() {
         INSTANCE = this;
+        LOGGER.info("Initializing Walkie Talkie voice addon");
 
         this.sourceLine = voiceServer.getSourceLineManager().createBuilder(
                 this,
@@ -98,38 +91,62 @@ public final class WalkieVoiceServerAddon implements AddonInitializer {
                 "walkietalkie:textures/icons/wt_pvradio.png",
                 "walkietalkie.activation",
                 10
-        ).build();
+        ).setPermissionDefault(PermissionDefault.TRUE)
+         .build();
 
         activation.onPlayerActivationStart(this::onActivationStart);
         activation.onPlayerActivation(this::onActivation);
         activation.onPlayerActivationEnd(this::onActivationEnd);
+
+        voiceServer.getEventBus().register(this, this);
+        LOGGER.info("Registered PlayerSpeakEvent/PlayerSpeakEndEvent listeners for station mic-capture");
+
+        LOGGER.info("Walkie Talkie voice addon initialized (permission default: everyone allowed)");
     }
 
     @Override
     public void onAddonShutdown() {
+        LOGGER.info("Shutting down Walkie Talkie voice addon " +
+                "({} speakers, {} stations, {} proximity relays)",
+                speakerSources.size(), stationListenSources.size(), proximityRelaySources.size());
         speakerSources.values().forEach(ServerBroadcastSource::remove);
         speakerSources.clear();
         stationListenSources.values().forEach(ServerStaticSource::remove);
         stationListenSources.clear();
+        proximityRelaySources.values().forEach(ServerBroadcastSource::remove);
+        proximityRelaySources.clear();
+        speakStations.clear();
+        proximityActiveFreqs.clear();
         INSTANCE = null;
     }
 
-    // ---- station lifecycle (called from RadioStationBlockEntity.syncVoiceRelay) ----
-
-    /**
-     * @param listen  station is powered on → create/keep the listen static source
-     * @param speak   station has mic module + mic button active → capture nearby voice
-     */
     public static void onStationUpdated(ServerLevel level, BlockPos pos,
                                         int deciFrequency, boolean listen, boolean speak) {
         WalkieVoiceServerAddon inst = INSTANCE;
+        if (inst == null) {
+            LOGGER.warn("onStationUpdated({}) called but the addon isn't initialized yet - ignoring", pos);
+            return;
+        }
+        try {
+            inst.updateStation(level, pos, deciFrequency, listen, speak);
+        } catch (Exception e) {
+            LOGGER.error("Failed to update station at {} (freq={}, listen={}, speak={})",
+                    pos, deciFrequency, listen, speak, e);
+        }
+    }
+
+    public static void onStationRemoved(ServerLevel level, BlockPos pos) {
+        WalkieVoiceServerAddon inst = INSTANCE;
         if (inst == null) return;
-        inst.updateStation(level, pos, deciFrequency, listen, speak);
+        try {
+            inst.removeStation(pos);
+        } catch (Exception e) {
+            LOGGER.error("Failed to remove station at {}", pos, e);
+        }
     }
 
     private void updateStation(ServerLevel level, BlockPos pos,
                                int deciFrequency, boolean listen, boolean speak) {
-        // Always remove the old static source; rebuild if needed.
         ServerStaticSource oldSrc = stationListenSources.remove(pos);
         if (oldSrc != null) oldSrc.remove();
 
@@ -144,60 +161,158 @@ public final class WalkieVoiceServerAddon implements AddonInitializer {
                 ServerStaticSource src = sourceLine.createStaticSource(pvPos, false);
                 stationListenSources.put(pos, src);
                 state.setStationActive(pos, deciFrequency);
+            } else {
+                LOGGER.warn("Station at {} in {} has no matching Plasmo Voice world - listen relay disabled",
+                        pos, level.dimension().location());
             }
         }
-        // speak=true is tracked in RadioState for future mic-capture extension.
-        // (Requires su.plo.voice.api:server-proxy-common for PlayerServerActivationEvent
-        // which is not published as a standalone artifact in PV 2.1.x)
+
+        if (speak) speakStations.put(pos, new SpeakStation(level, deciFrequency));
+        else speakStations.remove(pos);
+
+        LOGGER.info("Station updated: pos={} dim={} freq={} listen={} speak={}",
+                pos, level.dimension().location(), FrequencyUtil.fromDeci(deciFrequency), listen, speak);
     }
 
-    // ---- walkie-talkie activation callbacks ----
+    private void removeStation(BlockPos pos) {
+        ServerStaticSource oldSrc = stationListenSources.remove(pos);
+        if (oldSrc != null) oldSrc.remove();
+        speakStations.remove(pos);
+        currentState().setStationInactive(pos);
+        LOGGER.info("Station removed: pos={}", pos);
+    }
 
     private void onActivationStart(VoicePlayer vp) {
-        UUID id = vp.getInstance().getUuid();
-        ServerBroadcastSource stale = speakerSources.remove(id);
-        if (stale != null) stale.remove();
-        speakerSources.put(id, sourceLine.createBroadcastSource(false));
+        try {
+            UUID id = vp.getInstance().getUuid();
+            ServerBroadcastSource stale = speakerSources.remove(id);
+            if (stale != null) stale.remove();
+            speakerSources.put(id, sourceLine.createBroadcastSource(false));
+            LOGGER.info("{} started transmitting on the walkie-talkie activation", vp.getInstance().getUuid());
+        } catch (Exception e) {
+            LOGGER.error("onActivationStart failed", e);
+        }
     }
 
     private ServerActivation.Result onActivation(VoicePlayer vp, PlayerAudioPacket packet) {
-        UUID speakerId = vp.getInstance().getUuid();
-        Integer freq = currentState().getTransmitFrequency(speakerId);
-        if (freq == null) return ServerActivation.Result.IGNORED;
+        try {
+            UUID speakerId = vp.getInstance().getUuid();
+            Integer freq = currentState().getTransmitFrequency(speakerId);
+            if (freq == null) return ServerActivation.Result.IGNORED;
 
-        ServerBroadcastSource playerSource = speakerSources.get(speakerId);
-        if (playerSource == null) return ServerActivation.Result.IGNORED;
+            ServerBroadcastSource playerSource = speakerSources.get(speakerId);
+            if (playerSource == null) return ServerActivation.Result.IGNORED;
 
-        PlayerActivationInfo info = new PlayerActivationInfo((VoiceServerPlayer) vp, packet);
-        playerSource.setPlayers(resolveListeners(freq, speakerId));
-        playerSource.sendAudioFrame(packet.getData(), packet.getSequenceNumber(), info);
-        relayToStations(freq, packet.getData(), packet.getSequenceNumber(), info);
+            PlayerActivationInfo info = new PlayerActivationInfo((VoiceServerPlayer) vp, packet);
+            playerSource.setPlayers(resolveListeners(freq, speakerId));
+            playerSource.sendAudioFrame(packet.getData(), packet.getSequenceNumber(), info);
+            relayToStations(freq, packet.getData(), packet.getSequenceNumber(), info);
 
-        return ServerActivation.Result.HANDLED;
+            return ServerActivation.Result.HANDLED;
+        } catch (Exception e) {
+            LOGGER.error("onActivation failed", e);
+            return ServerActivation.Result.IGNORED;
+        }
     }
 
     private ServerActivation.Result onActivationEnd(VoicePlayer vp, PlayerAudioEndPacket packet) {
-        UUID id = vp.getInstance().getUuid();
-        Integer freq = currentState().getTransmitFrequency(id);
-        if (freq != null) endOnStations(freq, packet.getSequenceNumber());
+        try {
+            UUID id = vp.getInstance().getUuid();
+            Integer freq = currentState().getTransmitFrequency(id);
+            if (freq != null) endOnStations(freq, packet.getSequenceNumber(), null);
 
-        ServerBroadcastSource src = speakerSources.remove(id);
-        if (src != null) src.remove();
-        return ServerActivation.Result.HANDLED;
+            ServerBroadcastSource src = speakerSources.remove(id);
+            if (src != null) src.remove();
+            LOGGER.info("{} stopped transmitting on the walkie-talkie activation", id);
+            return ServerActivation.Result.HANDLED;
+        } catch (Exception e) {
+            LOGGER.error("onActivationEnd failed", e);
+            return ServerActivation.Result.IGNORED;
+        }
     }
 
-    // ---- relay helpers ----
+    @EventSubscribe(priority = EventPriority.LOWEST, ignoreCancelled = false)
+    public void onPlayerSpeak(PlayerSpeakEvent event) {
+        try {
+            if (!speakEventSeen) {
+                speakEventSeen = true;
+                LOGGER.info("First PlayerSpeakEvent received - mic-capture hook is live ({} speak-enabled stations)",
+                        speakStations.size());
+            }
+            if (speakStations.isEmpty()) return;
+
+            VoicePlayer vp = event.getPlayer();
+            if (!(vp instanceof VoiceServerPlayer vsp)) return;
+
+            UUID speakerId = vp.getInstance().getUuid();
+            if (currentState().getTransmitFrequency(speakerId) != null) return;
+
+            McServerPlayer mcPlayer = vsp.getInstance();
+            Object rawInstance = mcPlayer.getInstance();
+            if (!(rawInstance instanceof ServerPlayer sp)) return;
+
+            PlayerAudioPacket packet = event.getPacket();
+            PlayerActivationInfo info = new PlayerActivationInfo(vsp, packet);
+
+            double micRange = WTServerConfig.STATION_MIC_RANGE.get();
+
+            speakStations.forEach((pos, station) -> {
+                if (station.level() != sp.level()) return;
+                double dx = pos.getX() + 0.5 - sp.getX();
+                double dy = pos.getY() + 0.5 - sp.getY();
+                double dz = pos.getZ() + 0.5 - sp.getZ();
+                if (dx * dx + dy * dy + dz * dz > micRange * micRange) return;
+
+                int freq = station.deciFrequency();
+                Set<Integer> playerFreqs = proximityActiveFreqs.computeIfAbsent(speakerId, k -> ConcurrentHashMap.newKeySet());
+                if (playerFreqs.add(freq)) {
+                    LOGGER.info("{} started speaking into the station at {} (freq={})",
+                            speakerId, pos, FrequencyUtil.fromDeci(freq));
+                }
+
+                ServerBroadcastSource src = proximityRelaySources.computeIfAbsent(
+                        speakerId, k -> sourceLine.createBroadcastSource(false));
+                src.setPlayers(resolveListeners(freq, speakerId));
+                src.sendAudioFrame(packet.getData(), packet.getSequenceNumber(), info);
+                relayToStations(freq, packet.getData(), packet.getSequenceNumber(), info, pos);
+            });
+        } catch (Exception e) {
+            LOGGER.error("onPlayerSpeak failed", e);
+        }
+    }
+
+    @EventSubscribe(priority = EventPriority.LOWEST, ignoreCancelled = false)
+    public void onPlayerSpeakEnd(PlayerSpeakEndEvent event) {
+        try {
+            UUID speakerId = event.getPlayer().getInstance().getUuid();
+
+            Set<Integer> freqs = proximityActiveFreqs.remove(speakerId);
+            if (freqs != null) freqs.forEach(freq -> endOnStations(freq, event.getPacket().getSequenceNumber(), null));
+
+            ServerBroadcastSource src = proximityRelaySources.remove(speakerId);
+            if (src != null) src.remove();
+        } catch (Exception e) {
+            LOGGER.error("onPlayerSpeakEnd failed", e);
+        }
+    }
 
     private void relayToStations(int deciFrequency, byte[] data, long seq,
                                  @Nullable PlayerActivationInfo info) {
+        relayToStations(deciFrequency, data, seq, info, null);
+    }
+
+    private void relayToStations(int deciFrequency, byte[] data, long seq,
+                                 @Nullable PlayerActivationInfo info, @Nullable BlockPos exclude) {
         currentState().stationsForFrequency(deciFrequency).forEach(pos -> {
+            if (pos.equals(exclude)) return;
             ServerStaticSource src = stationListenSources.get(pos);
             if (src != null) src.sendAudioFrame(data, seq, STATION_AUDIO_DISTANCE, info);
         });
     }
 
-    private void endOnStations(int deciFrequency, long seq) {
+    private void endOnStations(int deciFrequency, long seq, @Nullable BlockPos exclude) {
         currentState().stationsForFrequency(deciFrequency).forEach(pos -> {
+            if (pos.equals(exclude)) return;
             ServerStaticSource src = stationListenSources.get(pos);
             if (src != null) src.sendAudioEnd(seq, STATION_AUDIO_DISTANCE);
         });

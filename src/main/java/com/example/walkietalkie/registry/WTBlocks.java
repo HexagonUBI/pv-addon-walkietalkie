@@ -19,7 +19,7 @@ public final class WTBlocks {
                             .mapColor(MapColor.COLOR_BLACK)
                             .strength(2.0F, 6.0F)
                             .sound(SoundType.NETHERITE_BLOCK)
-                            .noOcclusion() // not a full cube -- lets light through around it
+                            .noOcclusion()
             ));
 
     private WTBlocks() {}

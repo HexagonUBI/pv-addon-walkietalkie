@@ -7,3 +7,6 @@ out/
 README.md
 .vscode/
 latest-changes.txt
+
+# Private local notes/dev folder (never track)
+/Notes/

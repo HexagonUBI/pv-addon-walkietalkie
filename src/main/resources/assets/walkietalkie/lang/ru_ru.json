@@ -1,6 +1,7 @@
 {
   "item.walkietalkie.walkie_talkie": "Аналоговая Рация",
   "item.walkietalkie.microphone_module": "Микрофонный модуль",
+  "item.walkietalkie.speaker_module": "Модуль динамика",
   "item.walkietalkie.debug_module_a": "Отладочный модуль A",
   "item.walkietalkie.debug_module_b": "Отладочный модуль B",
   "block.walkietalkie.radio_station": "Радио Станция",
@@ -15,6 +16,7 @@
 
   "screen.walkietalkie.title": "Настройка рации",
   "screen.walkietalkie.frequency": "Радио-частота",
+  "screen.walkietalkie.mhz": "МГц",
   "screen.walkietalkie.frequency_value": "Частота: %s",
   "screen.walkietalkie.power": "Рация",
   "screen.walkietalkie.mic": "Mic",

@@ -8,10 +8,6 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 
-/**
- * Sent from the config screen to the server to persist the chosen settings onto the
- * walkie-talkie the player is holding in {@code hand}.
- */
 public record ConfigureWalkieC2S(InteractionHand hand, int frequency, boolean enabled)
         implements CustomPacketPayload {
 
@@ -20,7 +16,6 @@ public record ConfigureWalkieC2S(InteractionHand hand, int frequency, boolean en
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ConfigureWalkieC2S> STREAM_CODEC =
             StreamCodec.composite(
-                    // InteractionHand has no built-in codec; send the ordinal.
                     ByteBufCodecs.VAR_INT.map(
                             i -> InteractionHand.values()[i],
                             InteractionHand::ordinal),

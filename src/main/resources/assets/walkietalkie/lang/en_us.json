@@ -1,6 +1,7 @@
 {
   "item.walkietalkie.walkie_talkie": "Analog Walkie Talkie",
   "item.walkietalkie.microphone_module": "Microphone Module",
+  "item.walkietalkie.speaker_module": "Speaker Module",
   "item.walkietalkie.debug_module_a": "Debug Module A",
   "item.walkietalkie.debug_module_b": "Debug Module B",
   "block.walkietalkie.radio_station": "Radio Station",
@@ -15,6 +16,7 @@
 
   "screen.walkietalkie.title": "Radio Configuration",
   "screen.walkietalkie.frequency": "Frequency",
+  "screen.walkietalkie.mhz": "MHz",
   "screen.walkietalkie.frequency_value": "Frequency: %s",
   "screen.walkietalkie.power": "Radio",
   "screen.walkietalkie.mic": "Mic",

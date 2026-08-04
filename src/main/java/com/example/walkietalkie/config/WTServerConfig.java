@@ -2,18 +2,13 @@ package com.example.walkietalkie.config;
 
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-/**
- * Server-side config (one copy per world, in config/walkietalkie-server.toml).
- * Controls the tunable frequency range -- the slider in the radio GUI always spans
- * exactly [min-frequency, max-frequency], with the leftmost handle position being
- * min-frequency and the rightmost being max-frequency.
- */
 public final class WTServerConfig {
 
     public static final ModConfigSpec SPEC;
 
     public static final ModConfigSpec.DoubleValue MIN_FREQUENCY;
     public static final ModConfigSpec.DoubleValue MAX_FREQUENCY;
+    public static final ModConfigSpec.DoubleValue STATION_MIC_RANGE;
 
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -33,6 +28,16 @@ public final class WTServerConfig {
                 .comment("Maximum tunable frequency. If this ends up lower than min-frequency,",
                         "it's treated as equal to min-frequency (single fixed channel).")
                 .defineInRange("max-frequency", 999.9, 0.0, 99999.0);
+
+        builder.pop();
+
+        builder.push("station");
+
+        STATION_MIC_RANGE = builder
+                .comment("How close (in blocks) a player must be to a powered-on Radio Station",
+                        "with an active microphone module for their voice to be picked up and",
+                        "relayed onto the station's frequency.")
+                .defineInRange("mic-range", 5.0, 0.0, 256.0);
 
         builder.pop();
 

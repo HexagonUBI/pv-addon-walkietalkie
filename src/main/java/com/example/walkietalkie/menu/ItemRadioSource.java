@@ -11,28 +11,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
 
-/**
- * Backs the radio menu when it's opened from a handheld walkie-talkie (as opposed to a
- * placed Radio Station block).
- *
- * The walkie-talkie ItemStack isn't a stable object reference -- if we held onto the
- * ItemStack instance from the moment the menu opened, edits would vanish the moment the
- * player's inventory stack got copied/replaced elsewhere (this happens more often than
- * you'd expect: stacking, NBT comparisons, etc). So instead we remember WHERE the item
- * is (player + hand) and re-fetch it fresh on every read/write, exactly like
- * ConfigureWalkieC2S used to.
- *
- * Module/mic slot contents are mirrored from -- and written back to -- the stack's
- * vanilla DataComponents.CONTAINER component (the same component Bundles use), following
- * the standard NeoForge "item-backed container" pattern.
- */
 public final class ItemRadioSource extends SimpleContainer implements RadioContainerSource {
 
     private final ServerPlayer player;
     private final InteractionHand hand;
 
     public ItemRadioSource(ServerPlayer player, InteractionHand hand) {
-        super(3); // [0]=mic (unused/locked from the item context), [1..2]=modules
+        super(3);
         this.player = player;
         this.hand = hand;
 
@@ -61,18 +46,17 @@ public final class ItemRadioSource extends SimpleContainer implements RadioConta
     @Override
     public void setFrequency(float frequency) {
         ItemStack stack = stack();
+        if (frequency == WalkieTalkieItem.frequencyOf(stack)) return;
         stack.set(WTComponents.FREQUENCY.get(), frequency);
         if (WalkieTalkieItem.isEnabled(stack)) {
-            // Tuning to a new channel while live changes which listeners hear it.
             RadioState.get(player.server).refreshListeners(player.server);
         }
     }
 
-    @Override
-    public boolean isMicActive() { return false; }
-
-    @Override
-    public void setMicActive(boolean active) { /* not applicable on handheld radio */ }
+    @Override public boolean isMicActive() { return false; }
+    @Override public void setMicActive(boolean active) {}
+    @Override public boolean isOutputActive() { return false; }
+    @Override public void setOutputActive(boolean active) {}
 
     @Override
     public boolean isEnabled() {

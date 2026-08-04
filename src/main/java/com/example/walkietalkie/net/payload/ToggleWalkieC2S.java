@@ -7,13 +7,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
-/**
- * Sent from the inventory-click toggle ({@code WalkieTalkieItem#overrideOtherStackedOnMe})
- * when the player is in creative mode. Creative-menu slot clicks only invoke Item click
- * overrides client-side (there's no authoritative server call to piggyback on like there
- * is in survival), so we tell the server which of the player's own inventory slots to
- * flip ourselves.
- */
 public record ToggleWalkieC2S(int containerSlot) implements CustomPacketPayload {
 
     public static final Type<ToggleWalkieC2S> TYPE =

@@ -32,33 +32,11 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * One item, three gestures, all derived from how long right-click is held:
- *
- *   • SHIFT + right-click  -> open the radio configuration menu (frequency slider,
- *                             on/off button, module slots), embedded in the player's
- *                             own inventory screen like a "bundle"-style mod GUI.
- *   • quick tap            -> toggle the radio on/off.
- *   • hold (> threshold)   -> push-to-talk on the current frequency.
- *
- * Plus a fourth, inventory-only gesture, the same way bundles handle clicks in a GUI
- * slot: right-clicking the walkie-talkie while it's sitting in a slot (cursor empty)
- * also toggles power, without needing to hold it first.
- *
- * The "talk" gesture only marks server-side intent + frequency. The actual microphone
- * capture is started client-side by the Plasmo Voice client bridge while the item is
- * being used (see WalkieVoiceClientAddon).
- *
- * Frequency is stored as a float (one decimal place, e.g. 100.2); RadioState's listener
- * map keys are "deci-frequency" ints (freq * 10, rounded) -- see FrequencyUtil for why.
- */
 public class WalkieTalkieItem extends Item {
 
-    /** Ticks the button must be held before it counts as "talk" rather than "tap". */
-    public static final int HOLD_THRESHOLD = 6; // ~0.3s
-    private static final int MAX_USE = 72000;   // effectively "hold forever", like a bow
+    public static final int HOLD_THRESHOLD = 6;
+    private static final int MAX_USE = 72000;
 
-    /** Frequency a freshly crafted/given walkie starts on, clamped into the server's range. */
     private static final float DEFAULT_FREQUENCY = 100.0F;
 
     public WalkieTalkieItem(Properties properties) {
@@ -73,21 +51,14 @@ public class WalkieTalkieItem extends Item {
         return stack.getOrDefault(WTComponents.ENABLED.get(), Boolean.FALSE);
     }
 
-    /** Flips power and reports it, shared by the quick-tap gesture and the inventory click. */
     public static void togglePower(ItemStack stack, ServerPlayer sp) {
         setEnabled(stack, sp, !isEnabled(stack));
     }
 
-    /**
-     * Sets power state with full feedback (chat message, click sound, listener refresh).
-     * Shared by every entry point that can flip the radio's power: quick-tap, the
-     * inventory-click toggle, the creative-mode toggle payload, and the new GUI's
-     * on/off button.
-     */
     public static void setEnabled(ItemStack stack, ServerPlayer sp, boolean now) {
         boolean was = isEnabled(stack);
         stack.set(WTComponents.ENABLED.get(), now);
-        if (was == now) return; // no actual change -> skip feedback + listener refresh
+        if (was == now) return;
 
         RadioState.get(sp.server).refreshListeners(sp.server);
         sp.displayClientMessage(
@@ -95,23 +66,11 @@ public class WalkieTalkieItem extends Item {
                         .withStyle(now ? ChatFormatting.GREEN : ChatFormatting.GRAY),
                 true);
 
-        // Physical button click -- positional, audible to the player and anyone standing
-        // nearby, the same as any other handheld item sound. Volume follows the toggling
-        // player's own SFX slider; nearby bystanders just hear "how loud the click is",
-        // same as a real device.
         SoundEvent click = (now ? WTSounds.TOGGLE_ON : WTSounds.TOGGLE_OFF).get();
         float volume = RadioState.get(sp.server).sfxVolumeOf(sp.getUUID());
         sp.level().playSound(null, sp.getX(), sp.getY(), sp.getZ(), click, SoundSource.PLAYERS, volume, 1.0F);
     }
 
-    /**
-     * PTT key click, sent directly to every player currently listening on
-     * {@code deciFrequency} (per {@link RadioState#listenersFor}) via
-     * {@link ServerPlayer#playNotifySound}, NOT a positional sound -- the radio has
-     * cross-dimensional range, so "can hear it" means "has an enabled walkie tuned to
-     * this frequency", not "is standing nearby". Each listener hears it at their own SFX
-     * volume preference, not the speaker's.
-     */
     private static void notifyFrequency(MinecraftServer server, int deciFrequency, SoundEvent sound) {
         RadioState state = RadioState.get(server);
         for (UUID uuid : state.listenersFor(deciFrequency)) {
@@ -122,11 +81,6 @@ public class WalkieTalkieItem extends Item {
         }
     }
 
-    /**
-     * Broadcasts a looping-static start/stop packet to every player listening on
-     * {@code deciFrequency}. Each listener starts or stops the analog static sound on
-     * their own client via {@link com.example.walkietalkie.client.WTClientSounds}.
-     */
     public static void broadcastStaticState(MinecraftServer server, int deciFrequency, boolean active) {
         StaticStateS2C packet = new StaticStateS2C(deciFrequency, active);
         RadioState state = RadioState.get(server);
@@ -142,7 +96,6 @@ public class WalkieTalkieItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
-        // SHIFT -> open the radio configuration menu, do NOT begin "using".
         if (player.isSecondaryUseActive()) {
             if (!level.isClientSide && player instanceof ServerPlayer sp) {
                 sp.openMenu(new SimpleMenuProvider(
@@ -153,7 +106,6 @@ public class WalkieTalkieItem extends Item {
             return InteractionResultHolder.success(stack);
         }
 
-        // Otherwise begin "using"; release decides tap-vs-hold.
         player.startUsingItem(hand);
         return InteractionResultHolder.consume(stack);
     }
@@ -165,16 +117,13 @@ public class WalkieTalkieItem extends Item {
 
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
-        return UseAnim.NONE; // don't raise the item like food/bow
+        return UseAnim.NONE;
     }
 
     @Override
     public void onUseTick(Level level, LivingEntity entity, ItemStack stack, int remainingUseDuration) {
         int elapsed = getUseDuration(stack, entity) - remainingUseDuration;
 
-        // The instant we cross from "tap" into "talk", record server-side that this
-        // player is transmitting + on which frequency. The client bridge independently
-        // sees isUsingItem() and starts mic capture.
         if (elapsed == HOLD_THRESHOLD
                 && !level.isClientSide
                 && entity instanceof ServerPlayer sp
@@ -194,9 +143,8 @@ public class WalkieTalkieItem extends Item {
 
         int elapsed = getUseDuration(stack, entity) - timeLeft;
         if (elapsed < HOLD_THRESHOLD) {
-            togglePower(stack, sp); // QUICK TAP -> toggle power.
+            togglePower(stack, sp);
         } else {
-            // Was talking -> stop.
             int deciFreq = FrequencyUtil.toDeci(frequencyOf(stack));
             RadioState.get(sp.server).stopTransmitting(sp);
             notifyFrequency(sp.server, deciFreq, WTSounds.TALK_STOP.get());
@@ -204,20 +152,6 @@ public class WalkieTalkieItem extends Item {
         }
     }
 
-    /**
-     * Bundle-style inventory interaction: right-clicking an empty cursor onto the
-     * walkie-talkie while it's sitting in a slot toggles power, the same way an empty
-     * cursor right-clicked onto a bundle extracts an item. Returning {@code true} stops
-     * the menu from also running the default pickup/swap for this click.
-     *
-     * Survival container screens call this on both the predicting client and the
-     * authoritative server, so gating on ServerPlayer there is enough -- the server's
-     * mutation reaches the client via normal slot sync. The creative inventory screen is
-     * the odd one out: per NeoForge/vanilla, item click overrides in the creative menu
-     * only ever fire client-side, with no matching server call to piggyback on. So for a
-     * creative player we mutate locally for instant feedback and explicitly tell the
-     * server which of its own inventory slots to flip via {@link ToggleWalkieC2S}.
-     */
     @Override
     public boolean overrideOtherStackedOnMe(
             ItemStack stack,
@@ -233,8 +167,6 @@ public class WalkieTalkieItem extends Item {
         if (player instanceof ServerPlayer sp) {
             togglePower(stack, sp);
         } else if (player.isCreative()) {
-            // Per the method doc above, creative-menu clicks only reach us on the
-            // logical client (never as a ServerPlayer), so sendToServer is safe here.
             stack.set(WTComponents.ENABLED.get(), !isEnabled(stack));
             PacketDistributor.sendToServer(new ToggleWalkieC2S(slot.getContainerSlot()));
         }

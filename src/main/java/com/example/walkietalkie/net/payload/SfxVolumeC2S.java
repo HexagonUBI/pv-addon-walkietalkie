@@ -7,12 +7,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
-/**
- * Reports the player's current "SFX volume" AddonConfig slider value (see
- * {@code WalkieVoiceClientAddon}) so the server can scale the toggle/talk click sounds
- * to what each individual player asked for. Sent once on login and again whenever the
- * slider changes.
- */
 public record SfxVolumeC2S(float volume) implements CustomPacketPayload {
 
     public static final Type<SfxVolumeC2S> TYPE =
