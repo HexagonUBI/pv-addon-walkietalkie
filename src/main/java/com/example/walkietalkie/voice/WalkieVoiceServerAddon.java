@@ -9,8 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.example.walkietalkie.util.WTLog;
 
 import su.plo.slib.api.permission.PermissionDefault;
 import su.plo.slib.api.server.entity.player.McServerPlayer;
@@ -45,12 +44,12 @@ import java.util.concurrent.ConcurrentHashMap;
 @Addon(
         id = "wt-addon-server",
         name = "Walkie Talkie",
-        version = "1.0.5",
+        version = "1.1.0",
         authors = {"SimpleFox"}
 )
 public final class WalkieVoiceServerAddon implements AddonInitializer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("WalkieTalkie/Voice");
+    private static final WTLog LOGGER = WTLog.of("WalkieTalkie/Voice");
 
     private static WalkieVoiceServerAddon INSTANCE;
 

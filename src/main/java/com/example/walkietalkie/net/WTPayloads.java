@@ -13,12 +13,11 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.example.walkietalkie.util.WTLog;
 
 public final class WTPayloads {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("WalkieTalkie/Net");
+    private static final WTLog LOGGER = WTLog.of("WalkieTalkie/Net");
 
     public static void register(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar("1");

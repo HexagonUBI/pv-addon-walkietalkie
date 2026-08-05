@@ -1,15 +1,14 @@
 package com.example.walkietalkie.client.voice;
 
 import com.example.walkietalkie.voice.RadioAudioEffect;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.example.walkietalkie.util.WTLog;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 public final class RadioEffect {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("WalkieTalkie/RadioEffect");
+    private static final WTLog LOGGER = WTLog.of("WalkieTalkie/RadioEffect");
 
     private static final String ENGINE_CLASS = "org.sawiq.client.audio.VoiceChangerAudioEngine";
     private static final String STATE_CLASS = "org.sawiq.client.audio.VoiceChangerAudioEngine$VoiceChangerState";

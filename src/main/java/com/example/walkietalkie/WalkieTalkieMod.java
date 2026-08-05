@@ -14,8 +14,7 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.example.walkietalkie.util.WTLog;
 
 import su.plo.voice.api.server.PlasmoVoiceServer;
 
@@ -24,7 +23,7 @@ public final class WalkieTalkieMod {
 
     public static final String MOD_ID = "walkietalkie";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("WalkieTalkie");
+    private static final WTLog LOGGER = WTLog.of("WalkieTalkie");
 
     private final WalkieVoiceServerAddon voiceAddon = new WalkieVoiceServerAddon();
 

@@ -11,6 +11,7 @@ public final class WTServerConfig {
     public static final ModConfigSpec.DoubleValue STATION_MIC_RANGE;
     public static final ModConfigSpec.BooleanValue STATION_RADIO_EFFECT;
     public static final ModConfigSpec.BooleanValue STATION_SHOW_ICON;
+    public static final ModConfigSpec.BooleanValue DEBUG_LOGGING;
 
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -53,6 +54,17 @@ public final class WTServerConfig {
                 .comment("Show the Plasmo Voice speaker icon floating above a Radio Station",
                         "while it is playing audio. Turn this off for a more immersive look.")
                 .define("show-voice-icon", true);
+
+        builder.pop();
+
+        builder.push("debug");
+
+        DEBUG_LOGGING = builder
+                .comment("Log this mod's activity to the console: station registration, voice",
+                        "transmissions, and which optional integrations were detected.",
+                        "Only enable this when diagnosing a problem. Genuine errors are always",
+                        "logged regardless of this setting.")
+                .define("debug-logging", false);
 
         builder.pop();
 
