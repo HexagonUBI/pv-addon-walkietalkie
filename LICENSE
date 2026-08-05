@@ -1,0 +1,63 @@
+Source-Available License (No Redistribution or Reuse Without Permission)
+
+Copyright (c) 2026 SimpleFox_ and MrEri. All rights reserved.
+
+This project - including its source code, assets, textures, models, sounds and
+configuration files (collectively, "the Work") - is made publicly viewable for
+transparency, learning and review purposes only. It is NOT open source, and no
+license to use, copy, modify or distribute the Work is granted except as
+expressly stated below.
+
+1. PERMITTED WITHOUT PERMISSION
+
+   a. Viewing, reading and studying the source code.
+   b. Forking or cloning this repository solely for the purpose of reviewing
+      the Work, or preparing a contribution back to this project.
+   c. Quoting short excerpts of the source code in discussions, reviews,
+      tutorials or educational material, provided the Work is credited and a
+      link to the original repository is included.
+   d. Using the compiled mod as an end user, including on private or public
+      Minecraft servers, and including it in modpacks that are distributed at
+      no charge, provided the Work is credited and unmodified.
+
+2. REQUIRES PRIOR WRITTEN PERMISSION
+
+   a. Redistributing the Work, or any modified version of it, in source or
+      compiled form, outside of this repository.
+   b. Reusing any portion of the source code or assets in another project,
+      whether or not that project is public, free or commercial.
+   c. Any commercial use, including sale, paid distribution, monetised
+      modpacks, or use on servers that charge for access to features provided
+      by the Work.
+   d. Re-uploading the Work to any mod distribution platform.
+
+   To request permission, contact the copyright holders through the project's
+   repository.
+
+3. ATTRIBUTION
+
+   Any permitted use that is visible to others must credit "SimpleFox_ and
+   MrEri" and link to the original repository. Attribution may not imply
+   endorsement of a derived work by the copyright holders.
+
+4. CONTRIBUTIONS
+
+   By submitting a contribution to this project, you agree that your
+   contribution is licensed to the copyright holders under these same terms,
+   and that they may relicense the project as a whole in the future.
+
+5. NO WARRANTY
+
+   THE WORK IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+   THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+   FROM, OUT OF OR IN CONNECTION WITH THE WORK OR THE USE OR OTHER DEALINGS
+   IN THE WORK.
+
+6. THIRD-PARTY COMPONENTS
+
+   The Work is an add-on for Plasmo Voice and is built against the NeoForge
+   modding platform. Those projects, and any other third-party libraries or
+   assets referenced, remain under their own respective licenses.

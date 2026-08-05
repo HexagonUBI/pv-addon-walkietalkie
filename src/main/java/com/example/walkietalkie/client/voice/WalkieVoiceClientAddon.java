@@ -62,7 +62,6 @@ public final class WalkieVoiceClientAddon implements AddonInitializer {
     private BooleanConfigEntry voiceByDefaultEntry;
     private DoubleConfigEntry sfxVolumeEntry;
     private BooleanConfigEntry radioEffectEntry;
-    private BooleanConfigEntry voiceChangerEntry;
 
     private final Map<UUID, RadioEffect> sourceEffects = new ConcurrentHashMap<>();
 
@@ -93,12 +92,6 @@ public final class WalkieVoiceClientAddon implements AddonInitializer {
                 McTextComponent.translatable("config.walkietalkie.radio_effect"),
                 McTextComponent.translatable("config.walkietalkie.radio_effect.tooltip"),
                 true
-        );
-        this.voiceChangerEntry = config.addToggle(
-                "voice-changer-radio",
-                McTextComponent.translatable("config.walkietalkie.voice_changer_radio"),
-                McTextComponent.translatable("config.walkietalkie.voice_changer_radio.tooltip"),
-                false
         );
         sfxVolumeEntry.addChangeListener(volume -> sendSfxVolume());
     }
@@ -141,7 +134,6 @@ public final class WalkieVoiceClientAddon implements AddonInitializer {
     private void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
         WTClientSounds.stopAll();
         transmitting = false;
-        VoiceChangerBridge.endRadio();
     }
 
     private void sendSfxVolume() {
@@ -200,11 +192,6 @@ public final class WalkieVoiceClientAddon implements AddonInitializer {
 
         if (shouldTransmit != transmitting) {
             transmitting = shouldTransmit;
-            if (shouldTransmit && voiceChangerEntry != null && voiceChangerEntry.value()) {
-                VoiceChangerBridge.beginRadio();
-            } else if (!shouldTransmit) {
-                VoiceChangerBridge.endRadio();
-            }
             walkieActivation.setDisabled(!shouldTransmit);
         }
     }

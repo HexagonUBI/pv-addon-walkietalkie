@@ -40,7 +40,7 @@ public class RadioScreen extends AbstractContainerScreen<RadioMenu> {
     private static final int SPK_BTN_X = 44, SPK_BTN_Y = 54;
 
     private static final int FREQ_BOX_X = 20, FREQ_BOX_Y = 21, FREQ_BOX_W = 29, FREQ_BOX_H = 12;
-    private static final int MHZ_LABEL_X = 8, MHZ_LABEL_Y = 8;
+    private static final int MHZ_LABEL_X = 13, MHZ_LABEL_Y = 8;
     private static final int FREQ_LABEL_X = 65, FREQ_LABEL_Y = 8;
 
     private static ResourceLocation id(String path) {
@@ -66,6 +66,12 @@ public class RadioScreen extends AbstractContainerScreen<RadioMenu> {
         this.arrR     = station ? RS_ARR_R   : WT_ARR_R;
         this.arrLH    = station ? RS_ARR_LH  : WT_ARR_LH;
         this.arrRH    = station ? RS_ARR_RH  : WT_ARR_RH;
+    }
+
+    @Override
+    public void render(GuiGraphics gfx, int mx, int my, float partialTick) {
+        super.render(gfx, mx, my, partialTick);
+        this.renderTooltip(gfx, mx, my);
     }
 
     @Override
@@ -110,7 +116,7 @@ public class RadioScreen extends AbstractContainerScreen<RadioMenu> {
     }
 
     private float freqT() {
-        float min = FrequencyUtil.min(), max = FrequencyUtil.max();
+        float min = menu.getMinFrequency(), max = menu.getMaxFrequency();
         if (max <= min) return 0F;
         float t = (menu.getFrequency() - min) / (max - min);
         return Math.max(0F, Math.min(1F, t));
@@ -121,7 +127,8 @@ public class RadioScreen extends AbstractContainerScreen<RadioMenu> {
         int usable = TRACK_W - HANDLE_W;
         float t = usable > 0 ? (rel - HANDLE_W / 2F) / usable : 0F;
         t = Math.max(0F, Math.min(1F, t));
-        float raw = FrequencyUtil.min() + t * (FrequencyUtil.max() - FrequencyUtil.min());
+        float min = menu.getMinFrequency(), max = menu.getMaxFrequency();
+        float raw = min + t * (max - min);
         return FrequencyUtil.fromDeci(FrequencyUtil.toDeci(raw));
     }
 
@@ -179,8 +186,8 @@ public class RadioScreen extends AbstractContainerScreen<RadioMenu> {
 
     private void nudge(int dir) {
         int deci = FrequencyUtil.toDeci(menu.getFrequency()) + dir;
-        deci = Math.max(FrequencyUtil.toDeci(FrequencyUtil.min()),
-               Math.min(FrequencyUtil.toDeci(FrequencyUtil.max()), deci));
+        deci = Math.max(FrequencyUtil.toDeci(menu.getMinFrequency()),
+               Math.min(FrequencyUtil.toDeci(menu.getMaxFrequency()), deci));
         if (deci != lastSentDeci)
             send(FrequencyUtil.fromDeci(deci), menu.isEnabled(), menu.isMicActive(), menu.isOutputActive());
     }

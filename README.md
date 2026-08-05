@@ -37,7 +37,7 @@
 
 # How To Install
 
-1. Install [Plasmo Voice](https://modrinth.com/mod/1bZhdhsH) on both client and server — this addon does nothing without it
+1. Install [Plasmo Voice](https://modrinth.com/mod/1bZhdhsH) on both client and server - this addon does nothing without it
 2. Download the latest jar from [Releases](https://github.com/SimpleFoxOfficial/pv-addon-walkietalkie/releases)
 3. Drop it in your `mods` folder (client + server)
 4. Launch the game, craft a Walkie-Talkie, and tune in

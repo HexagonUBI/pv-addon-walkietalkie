@@ -9,7 +9,7 @@
   "tooltip.walkietalkie.frequency": "Frequency: %s",
   "tooltip.walkietalkie.on": "Radio: ON",
   "tooltip.walkietalkie.off": "Radio: OFF",
-  "tooltip.walkietalkie.module_debug": "Debug module %s — no effect yet",
+  "tooltip.walkietalkie.module_debug": "Debug module %s - no effect yet",
 
   "msg.walkietalkie.on": "Walkie-talkie turned ON",
   "msg.walkietalkie.off": "Walkie-talkie turned OFF",
@@ -29,9 +29,6 @@
 
   "config.walkietalkie.radio_effect": "Radio Voice Effect",
   "config.walkietalkie.radio_effect.tooltip": "Applies a radio effect to everything you hear through a walkie-talkie or Radio Station. Only affects this mod's audio - normal proximity chat is untouched.",
-
-  "config.walkietalkie.voice_changer_radio": "Use pv-voice-changer Radio preset",
-  "config.walkietalkie.voice_changer_radio.tooltip": "Requires the pv-voice-changer mod. While transmitting on a walkie-talkie, forces its Radio preset on your microphone and restores your previous preset afterwards. Note this also colours your normal proximity chat while you hold the talk button.",
 
   "config.walkietalkie.sfx_volume": "Walkie-Talkie SFX Volume",
   "config.walkietalkie.sfx_volume.tooltip": "Volume of the power on/off and talk start/stop click sounds.",

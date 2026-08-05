@@ -42,7 +42,7 @@ public final class WalkieTalkieMod {
         modBus.addListener(WTPayloads::register);
         modBus.addListener(WTItems::addToCreativeTab);
 
-        container.registerConfig(ModConfig.Type.SERVER, WTServerConfig.SPEC);
+        container.registerConfig(ModConfig.Type.COMMON, WTServerConfig.SPEC, "walkietalkie.toml");
 
         LOGGER.info("Registering the Walkie Talkie Plasmo Voice addon");
         PlasmoVoiceServer.getAddonsLoader().load(voiceAddon);

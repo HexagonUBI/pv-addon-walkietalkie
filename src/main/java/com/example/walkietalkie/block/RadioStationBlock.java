@@ -30,7 +30,8 @@ public class RadioStationBlock extends BaseEntityBlock {
     public static final MapCodec<RadioStationBlock> CODEC = simpleCodec(RadioStationBlock::new);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    private static final VoxelShape SHAPE = Block.box(1, 0, 1, 15, 9, 15);
+    private static final VoxelShape SHAPE_NS = Block.box(2, 0, 4, 14, 7, 12);
+    private static final VoxelShape SHAPE_EW = Block.box(4, 0, 2, 12, 7, 14);
 
     public RadioStationBlock(BlockBehaviour.Properties properties) {
         super(properties);
@@ -48,14 +49,17 @@ public class RadioStationBlock extends BaseEntityBlock {
         builder.add(FACING);
     }
 
+    @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+        if (ctx.getClickedFace() != Direction.UP) return null;
         return defaultBlockState().setValue(FACING, ctx.getHorizontalDirection().getOpposite());
     }
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
-        return SHAPE;
+        Direction facing = state.getValue(FACING);
+        return facing.getAxis() == Direction.Axis.X ? SHAPE_EW : SHAPE_NS;
     }
 
     @Nullable

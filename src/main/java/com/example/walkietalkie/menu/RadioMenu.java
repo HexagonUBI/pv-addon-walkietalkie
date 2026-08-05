@@ -90,12 +90,14 @@ public final class RadioMenu extends AbstractContainerMenu {
         }
         addPlayerSlots(inv, INV_X, INV_Y);
 
-        this.data = new SimpleContainerData(4);
+        this.data = new SimpleContainerData(6);
         addDataSlots(data);
         data.set(0, FrequencyUtil.toDeci(source.getFrequency()));
         data.set(1, source.isEnabled()      ? 1 : 0);
         data.set(2, source.isMicActive()    ? 1 : 0);
         data.set(3, source.isOutputActive() ? 1 : 0);
+        data.set(4, FrequencyUtil.toDeci(FrequencyUtil.min()));
+        data.set(5, FrequencyUtil.toDeci(FrequencyUtil.max()));
     }
 
     private void addPlayerSlots(Inventory inv, int x, int y) {
@@ -111,6 +113,16 @@ public final class RadioMenu extends AbstractContainerMenu {
     public boolean isEnabled()     { return data.get(1) != 0; }
     public boolean isMicActive()   { return data.get(2) != 0; }
     public boolean isOutputActive(){ return data.get(3) != 0; }
+
+    public float getMinFrequency() {
+        int deci = data.get(4);
+        return deci > 0 ? FrequencyUtil.fromDeci(deci) : FrequencyUtil.min();
+    }
+
+    public float getMaxFrequency() {
+        int deci = data.get(5);
+        return deci > 0 ? FrequencyUtil.fromDeci(deci) : FrequencyUtil.max();
+    }
 
     public void serverApply(int deciFreq, boolean enabled, boolean micActive, boolean outputActive) {
         float clamped = FrequencyUtil.clamp(FrequencyUtil.fromDeci(deciFreq));

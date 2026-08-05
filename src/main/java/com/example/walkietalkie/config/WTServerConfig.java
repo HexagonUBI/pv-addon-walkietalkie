@@ -10,6 +10,7 @@ public final class WTServerConfig {
     public static final ModConfigSpec.DoubleValue MAX_FREQUENCY;
     public static final ModConfigSpec.DoubleValue STATION_MIC_RANGE;
     public static final ModConfigSpec.BooleanValue STATION_RADIO_EFFECT;
+    public static final ModConfigSpec.BooleanValue STATION_SHOW_ICON;
 
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -47,6 +48,11 @@ public final class WTServerConfig {
                         "Enable this only if you need the effect for players without this mod",
                         "installed - do not run both, or the effect is applied twice.")
                 .define("radio-effect", false);
+
+        STATION_SHOW_ICON = builder
+                .comment("Show the Plasmo Voice speaker icon floating above a Radio Station",
+                        "while it is playing audio. Turn this off for a more immersive look.")
+                .define("show-voice-icon", true);
 
         builder.pop();
 

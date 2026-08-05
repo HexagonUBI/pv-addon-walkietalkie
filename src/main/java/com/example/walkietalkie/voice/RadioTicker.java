@@ -17,6 +17,7 @@ public final class RadioTicker {
 
     @SubscribeEvent
     public static void onServerTick(ServerTickEvent.Post event) {
+        WalkieVoiceServerAddon.refreshStationPositions();
         if (++counter >= 20) {
             counter = 0;
             RadioState.get(event.getServer()).refreshListeners(event.getServer());

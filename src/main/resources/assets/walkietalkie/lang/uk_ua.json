@@ -8,7 +8,7 @@
   "tooltip.walkietalkie.frequency": "Частота: %s",
   "tooltip.walkietalkie.on": "Рація: Увімкнено",
   "tooltip.walkietalkie.off": "Рація: Вимкнено",
-  "tooltip.walkietalkie.module_debug": "Модуль налагодження %s — пока без эффекта",
+  "tooltip.walkietalkie.module_debug": "Модуль налагодження %s - пока без эффекта",
 
   "msg.walkietalkie.on": "Рація увімкнена",
   "msg.walkietalkie.off": "Рація вимкнена",

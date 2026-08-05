@@ -9,7 +9,7 @@
   "tooltip.walkietalkie.frequency": "Частота: %s",
   "tooltip.walkietalkie.on": "Рация: Включен",
   "tooltip.walkietalkie.off": "Рация: Выключен",
-  "tooltip.walkietalkie.module_debug": "Отладочный модуль %s — пока без эффекта",
+  "tooltip.walkietalkie.module_debug": "Отладочный модуль %s - пока без эффекта",
 
   "msg.walkietalkie.on": "Рация включена",
   "msg.walkietalkie.off": "Рация выключена",
@@ -28,10 +28,7 @@
   "config.walkietalkie.voice_default.tooltip": "У новых игроков активация рации выставляется на «Голос» вместо «Push-to-Talk», так что достаточно держать предмет в руке. Отключите, чтобы настроить это самостоятельно в настройках активации Plasmo Voice.",
 
   "config.walkietalkie.radio_effect": "Эффект радиоголоса",
-  "config.walkietalkie.radio_effect.tooltip": "Накладывает радиоэффект на всё, что вы слышите через рацию или радиостанцию. Затрагивает только звук этого мода — обычный проксимити-чат не меняется.",
-
-  "config.walkietalkie.voice_changer_radio": "Использовать пресет Radio из pv-voice-changer",
-  "config.walkietalkie.voice_changer_radio.tooltip": "Требует мод pv-voice-changer. Во время передачи через рацию включает его пресет Radio для микрофона и возвращает прежний пресет после. Учтите: пока вы держите кнопку разговора, эффект слышен и в обычном проксимити-чате.",
+  "config.walkietalkie.radio_effect.tooltip": "Накладывает радиоэффект на всё, что вы слышите через рацию или радиостанцию. Затрагивает только звук этого мода - обычный проксимити-чат не меняется.",
 
   "config.walkietalkie.sfx_volume": "Громкость звуков рации",
   "config.walkietalkie.sfx_volume.tooltip": "Громкость щелчков включения/выключения и начала/конца разговора.",

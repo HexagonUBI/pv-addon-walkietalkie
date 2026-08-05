@@ -8,7 +8,7 @@
   "tooltip.walkietalkie.frequency": "Жиілік: %s",
   "tooltip.walkietalkie.on": "Уоки-токи: Қосқанда",
   "tooltip.walkietalkie.off": "Уоки-токи: Өшірулі",
-  "tooltip.walkietalkie.module_debug": "Қателерді түзету модулі %s — Әзірге нәтиже жоқ",
+  "tooltip.walkietalkie.module_debug": "Қателерді түзету модулі %s - Әзірге нәтиже жоқ",
 
   "msg.walkietalkie.on": "Радио қосулы тұр",
   "msg.walkietalkie.off": "Радио өшірілген",

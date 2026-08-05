@@ -12,9 +12,12 @@ import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.gui.ConfigurationScreen;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 
 import su.plo.voice.api.client.PlasmoVoiceClient;
 
@@ -23,10 +26,11 @@ public final class WalkieTalkieClient {
 
     private final WalkieVoiceClientAddon clientAddon = new WalkieVoiceClientAddon();
 
-    public WalkieTalkieClient(IEventBus modBus) {
+    public WalkieTalkieClient(IEventBus modBus, ModContainer container) {
         PlasmoVoiceClient.getAddonsLoader().load(clientAddon);
         modBus.addListener(this::clientSetup);
         modBus.addListener(this::registerScreens);
+        container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
     }
 
     private void clientSetup(FMLClientSetupEvent event) {

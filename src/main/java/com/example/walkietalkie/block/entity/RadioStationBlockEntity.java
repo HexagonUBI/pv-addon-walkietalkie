@@ -92,8 +92,9 @@ public class RadioStationBlockEntity extends BlockEntity
     @Override
     public boolean stillValid(Player player) {
         if (level == null || level.getBlockEntity(worldPosition) != this) return false;
+        if (player.level() != level) return true;
         return player.position().distanceToSqr(
-                worldPosition.getX() + 0.5, worldPosition.getY() + 0.5, worldPosition.getZ() + 0.5) <= 64.0;
+                com.example.walkietalkie.compat.SableBridge.resolvePosition(level, worldPosition)) <= 64.0;
     }
 
     @Override public int getContainerSize() { return SLOT_COUNT; }

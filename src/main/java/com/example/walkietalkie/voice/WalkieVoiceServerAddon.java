@@ -1,5 +1,6 @@
 package com.example.walkietalkie.voice;
 
+import com.example.walkietalkie.compat.SableBridge;
 import com.example.walkietalkie.config.WTServerConfig;
 import com.example.walkietalkie.util.FrequencyUtil;
 import net.minecraft.core.BlockPos;
@@ -66,6 +67,7 @@ public final class WalkieVoiceServerAddon implements AddonInitializer {
     private final Map<UUID, ServerBroadcastSource> speakerSources = new ConcurrentHashMap<>();
     private final Map<BlockPos, ServerStaticSource> stationListenSources = new ConcurrentHashMap<>();
     private final Map<BlockPos, SpeakStation> speakStations = new ConcurrentHashMap<>();
+    private final Map<BlockPos, ServerLevel> stationLevels = new ConcurrentHashMap<>();
     private final Map<UUID, ServerBroadcastSource> proximityRelaySources = new ConcurrentHashMap<>();
     private final Map<UUID, Set<Integer>> proximityActiveFreqs = new ConcurrentHashMap<>();
 
@@ -209,10 +211,12 @@ public final class WalkieVoiceServerAddon implements AddonInitializer {
         if (listen) {
             McServerWorld pvWorld = voiceServer.getMinecraftServer().getWorld(level);
             if (pvWorld != null) {
-                ServerPos3d pvPos = new ServerPos3d(pvWorld,
-                        pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
+                net.minecraft.world.phys.Vec3 at = SableBridge.resolvePosition(level, pos);
+                ServerPos3d pvPos = new ServerPos3d(pvWorld, at.x, at.y, at.z);
                 ServerStaticSource src = sourceLine.createStaticSource(pvPos, false);
+                src.setIconVisible(WTServerConfig.STATION_SHOW_ICON.get());
                 stationListenSources.put(pos, src);
+                stationLevels.put(pos, level);
                 state.setStationActive(pos, deciFrequency);
             } else {
                 LOGGER.warn("Station at {} in {} has no matching Plasmo Voice world - listen relay disabled",
@@ -227,10 +231,45 @@ public final class WalkieVoiceServerAddon implements AddonInitializer {
                 pos, level.dimension().location(), FrequencyUtil.fromDeci(deciFrequency), listen, speak);
     }
 
+    public static void refreshStationPositions() {
+        WalkieVoiceServerAddon inst = INSTANCE;
+        if (inst == null || !SableBridge.isAvailable()) return;
+        try {
+            inst.updateSourcePositions();
+        } catch (Exception e) {
+            LOGGER.error("Failed to refresh station source positions", e);
+        }
+    }
+
+    private void updateSourcePositions() {
+        if (stationListenSources.isEmpty()) return;
+        boolean iconVisible = WTServerConfig.STATION_SHOW_ICON.get();
+        stationListenSources.forEach((pos, src) -> {
+            if (src.isIconVisible() != iconVisible) src.setIconVisible(iconVisible);
+
+            ServerLevel level = stationLevels.get(pos);
+            if (level == null) return;
+            net.minecraft.world.phys.Vec3 at = SableBridge.toWorldPosition(level, pos);
+            if (at == null) return;
+
+            ServerPos3d current = src.getPosition();
+            if (current != null
+                    && current.getX() == at.x && current.getY() == at.y && current.getZ() == at.z) {
+                return;
+            }
+
+            McServerWorld pvWorld = voiceServer.getMinecraftServer().getWorld(level);
+            if (pvWorld == null) return;
+            src.setPosition(new ServerPos3d(pvWorld, at.x, at.y, at.z));
+            src.setDirty();
+        });
+    }
+
     private void removeStation(BlockPos pos) {
         ServerStaticSource oldSrc = stationListenSources.remove(pos);
         if (oldSrc != null) oldSrc.remove();
         speakStations.remove(pos);
+        stationLevels.remove(pos);
         currentState().setStationInactive(pos);
         LOGGER.info("Station removed: pos={}", pos);
     }
@@ -312,9 +351,10 @@ public final class WalkieVoiceServerAddon implements AddonInitializer {
             Map<BlockPos, SpeakStation> inRange = new java.util.HashMap<>();
             speakStations.forEach((pos, station) -> {
                 if (station.level() != sp.level()) return;
-                double dx = pos.getX() + 0.5 - sp.getX();
-                double dy = pos.getY() + 0.5 - sp.getY();
-                double dz = pos.getZ() + 0.5 - sp.getZ();
+                net.minecraft.world.phys.Vec3 at = SableBridge.resolvePosition(station.level(), pos);
+                double dx = at.x - sp.getX();
+                double dy = at.y - sp.getY();
+                double dz = at.z - sp.getZ();
                 if (dx * dx + dy * dy + dz * dz > micRange * micRange) return;
                 inRange.put(pos, station);
             });

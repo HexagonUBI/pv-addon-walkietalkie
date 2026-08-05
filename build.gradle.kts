@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    // ModDevGradle — the current NeoForge build plugin for 1.21.1.
+    // ModDevGradle - the current NeoForge build plugin for 1.21.1.
     // If Gradle complains, bump this to the latest 2.0.x from the plugin portal.
     id("net.neoforged.moddev") version "2.0.78"
 }
@@ -54,7 +54,7 @@ dependencies {
     // pins guava to "strictly 32.1.2-jre". Those two strict constraints can't both be
     // satisfied, so resolution fails. Minecraft already puts Guava on the classpath, and PV
     // is compileOnly (the real PV mod provides everything at runtime), so dropping PV's copy
-    // is safe — we keep PV's own su.plo.voice.* modules (common/proto/proxy) that we compile
+    // is safe - we keep PV's own su.plo.voice.* modules (common/proto/proxy) that we compile
     // against, and let Minecraft's Guava win.
     compileOnly("su.plo.voice.api:server:$pvVersion") {
         exclude(group = "com.google.guava")
