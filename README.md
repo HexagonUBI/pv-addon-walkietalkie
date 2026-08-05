@@ -27,13 +27,44 @@
 - **Easy to use** - craft the radio and use it on the go
 - **Numeric frequency channels** - tune in to talk privately with anyone on the same channel
 - **Cross-dimensional range** - stay in touch with players in other dimensions, not just nearby ones
+- **Radio Stations** - placeable blocks that broadcast a frequency out loud, and pick up voices around them
+- **Radio voice effect** - anything heard through a walkie-talkie or station gets an authentic radio filter
+- **Works on moving vehicles** - full [Sable](https://github.com/ryanhcode/sable) sub-level support, so stations keep working on cars, ships and airships
 <br>
 
 <img alt="banner01" src="https://github.com/SimpleFoxOfficial/pv-addon-walkietalkie/blob/main/.github/ImagesStuff/walkietalkie_banner4.png?raw=true">
 
+### Walkie-Talkie
+
 - RMB Tap: Toggle the walkie-talkie
 - RMB Held: Speak in the walkie-talkie
 - Shift+RMB: Configure frequency and toggle walkie-talkie (is a menu)
+
+### Radio Station
+
+A placeable block with its own frequency dial and two module slots. Place it on any floor.
+
+- **Microphone Module** - lets the station pick up players speaking near it and transmit them onto its frequency
+- **Speaker Module** - lets the station play everything on its frequency out loud to anyone nearby
+
+Each module has its own toggle switch in the station's menu, so you can run a station as a
+receiver, a transmitter, or both. Pickup range is configurable and defaults to 5 blocks.
+
+# Configuration
+
+Settings live in `config/walkietalkie.toml` and can also be edited in-game from
+**Mods -> pv-addon-walkietalkie -> Config**, without restarting or editing files by hand.
+
+| Setting | Default | Description |
+|---|---|---|
+| `frequency.min-frequency` | `80.0` | Lowest tunable frequency |
+| `frequency.max-frequency` | `999.9` | Highest tunable frequency |
+| `station.mic-range` | `5.0` | How close you must be for a station's microphone to pick you up |
+| `station.show-voice-icon` | `true` | Show the Plasmo Voice speaker icon above an active station |
+| `station.radio-effect` | `false` | Apply the radio effect server-side instead of on the listener's client |
+
+Client options (radio voice effect, SFX volume, default activation type) are under
+**Plasmo Voice -> Addons -> Walkie Talkie**.
 
 # How To Install
 
@@ -41,6 +72,16 @@
 2. Download the latest jar from [Releases](https://github.com/SimpleFoxOfficial/pv-addon-walkietalkie/releases)
 3. Drop it in your `mods` folder (client + server)
 4. Launch the game, craft a Walkie-Talkie, and tune in
+
+# Optional Integrations
+
+Both are detected automatically at runtime. Neither is required, and nothing breaks if they are absent.
+
+- **[pv-voice-changer](https://github.com/imsawiq/pv-voice-changer)** - if installed, its Radio preset is used
+  for the radio effect. Without it, a built-in equivalent is used instead.
+- **[Sable](https://github.com/ryanhcode/sable)** - if installed, Radio Stations placed on sub-levels
+  (vehicles, ships, contraptions) are positioned at their real world location, so audio and the
+  station menu behave normally while they move.
 
 # Building from Source
 
@@ -51,6 +92,13 @@ cd pv-addon-walkietalkie
 ```
 
 The built jar will be in `build/libs/`.
+
+# License
+
+Source-available, all rights reserved. You may read, study and contribute to the code, and use the
+compiled mod (including in free modpacks) with credit. Redistribution, reuse of the code or assets
+in other projects, commercial use and re-uploads require prior written permission. See [LICENSE](LICENSE)
+for the full terms.
 <br><br>
 <img alt="banner01" src="https://github.com/SimpleFoxOfficial/pv-addon-walkietalkie/blob/main/.github/ImagesStuff/walkietalkie_banner5.png?raw=true">
 
