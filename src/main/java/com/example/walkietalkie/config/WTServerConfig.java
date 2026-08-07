@@ -53,7 +53,7 @@ public final class WTServerConfig {
         STATION_SHOW_ICON = builder
                 .comment("Show the Plasmo Voice speaker icon floating above a Radio Station",
                         "while it is playing audio. Turn this off for a more immersive look.")
-                .define("show-voice-icon", true);
+                .define("show-voice-icon", false);
 
         builder.pop();
 

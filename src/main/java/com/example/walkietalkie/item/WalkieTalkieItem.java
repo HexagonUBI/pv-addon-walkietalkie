@@ -27,6 +27,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
@@ -166,11 +168,23 @@ public class WalkieTalkieItem extends Item {
         }
         if (player instanceof ServerPlayer sp) {
             togglePower(stack, sp);
-        } else if (player.isCreative()) {
+        } else if (player.isCreative() && isCreativeInventoryOpen()) {
             stack.set(WTComponents.ENABLED.get(), !isEnabled(stack));
             PacketDistributor.sendToServer(new ToggleWalkieC2S(slot.getContainerSlot()));
         }
         return true;
+    }
+
+    private static boolean isCreativeInventoryOpen() {
+        if (FMLEnvironment.dist != Dist.CLIENT) return false;
+        return ClientScreenCheck.isCreativeInventoryOpen();
+    }
+
+    private static final class ClientScreenCheck {
+        private static boolean isCreativeInventoryOpen() {
+            return net.minecraft.client.Minecraft.getInstance().screen
+                    instanceof net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+        }
     }
 
     @Override
