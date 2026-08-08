@@ -1,7 +1,5 @@
 <div align=center>
 
-<img alt="banner01" src="https://github.com/SimpleFoxOfficial/pv-addon-walkietalkie/blob/main/.github/ImagesStuff/walkietalkie_banner2.png?raw=true">
-
 ![NeoForge](https://img.shields.io/badge/NeoForge-21.1.233-d8b62b?style=plastic&logo=curseforge&logoColor=white)
 ![Minecraft](https://img.shields.io/badge/Minecraft-1.21.1-brown?style=plastic&logo=minecraft&logoColor=white)
 ![Requires Plasmo Voice](https://img.shields.io/badge/Requires-Plasmo%20Voice-5865F2?style=plastic)
@@ -9,6 +7,7 @@
 [![Latest Release](https://img.shields.io/github/v/release/SimpleFoxOfficial/pv-addon-walkietalkie?style=plastic&logo=github&color=purple)](https://github.com/SimpleFoxOfficial/pv-addon-walkietalkie/releases)
 [![Modrinth](https://img.shields.io/modrinth/dt/KbXmELYr?style=plastic&logo=modrinth&logoColor=white&label=Modrinth&color=green
 )](https://modrinth.com/mod/pv-addon-walkietalkie)
+<img alt="banner01" src="https://github.com/SimpleFoxOfficial/pv-addon-walkietalkie/blob/main/.github/ImagesStuff/walkietalkie_banner2-1.png?raw=true">
 
 </div>
 
@@ -22,17 +21,13 @@
 
 ---
 
-<img alt="banner01" src="https://github.com/SimpleFoxOfficial/pv-addon-walkietalkie/blob/main/.github/ImagesStuff/walkietalkie_banner3.png?raw=true">
+<img alt="banner01" src="https://github.com/SimpleFoxOfficial/pv-addon-walkietalkie/blob/main/.github/ImagesStuff/walkietalkie_banner3-1.png?raw=true">
+<img alt="banner01" src="https://github.com/SimpleFoxOfficial/pv-addon-walkietalkie/blob/main/.github/ImagesStuff/walkietalkie_banner3-2.png?raw=true">
 
-- **Easy to use** - craft the radio and use it on the go
-- **Numeric frequency channels** - tune in to talk privately with anyone on the same channel
-- **Cross-dimensional range** - stay in touch with players in other dimensions, not just nearby ones
-- **Radio Stations** - placeable blocks that broadcast a frequency out loud, and pick up voices around them
-- **Radio voice effect** - anything heard through a walkie-talkie or station gets an authentic radio filter
-- **Works on moving vehicles** - full [Sable](https://github.com/ryanhcode/sable) sub-level support, so stations keep working on cars, ships and airships
 <br>
 
-<img alt="banner01" src="https://github.com/SimpleFoxOfficial/pv-addon-walkietalkie/blob/main/.github/ImagesStuff/walkietalkie_banner4.png?raw=true">
+<img alt="banner01" src="https://github.com/SimpleFoxOfficial/pv-addon-walkietalkie/blob/main/.github/ImagesStuff/walkietalkie_banner4-1.png?raw=true">
+<img alt="banner01" src="https://github.com/SimpleFoxOfficial/pv-addon-walkietalkie/blob/main/.github/ImagesStuff/walkietalkie_banner4-2.png?raw=true">
 
 ### Walkie-Talkie
 
@@ -100,6 +95,6 @@ compiled mod (including in free modpacks) with credit. Redistribution, reuse of 
 in other projects, commercial use and re-uploads require prior written permission. See [LICENSE](LICENSE)
 for the full terms.
 <br><br>
-<img alt="banner01" src="https://github.com/SimpleFoxOfficial/pv-addon-walkietalkie/blob/main/.github/ImagesStuff/walkietalkie_banner5.png?raw=true">
+<img alt="banner01" src="https://github.com/SimpleFoxOfficial/pv-addon-walkietalkie/blob/main/.github/ImagesStuff/walkietalkie_banner5-1.png?raw=true">
 
 Developed by [SimpleFoxOfficial](https://github.com/SimpleFoxOfficial) and **MrEri** for the [Vector Point](https://github.com/SimpleFoxOfficial/VectorPoint) modpack, built on top of [Plasmo Voice](https://github.com/plasmoapp/plasmo-voice) by Apehum.
