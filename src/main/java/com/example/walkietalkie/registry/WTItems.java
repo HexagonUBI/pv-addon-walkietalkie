@@ -1,6 +1,7 @@
 package com.example.walkietalkie.registry;
 
 import com.example.walkietalkie.WalkieTalkieMod;
+import com.example.walkietalkie.item.BatteryItem;
 import com.example.walkietalkie.item.RadioModuleItem;
 import com.example.walkietalkie.item.WalkieTalkieItem;
 import net.minecraft.world.item.BlockItem;
@@ -24,6 +25,16 @@ public final class WTItems {
 
     public static final DeferredItem<BlockItem> RADIO_STATION =
             REGISTER.registerSimpleBlockItem("radio_station", WTBlocks.RADIO_STATION);
+
+    public static final DeferredItem<BlockItem> TOOLBOX =
+            REGISTER.registerSimpleBlockItem("toolbox", WTBlocks.TOOLBOX);
+
+    public static final DeferredItem<BatteryItem> BATTERY =
+            REGISTER.registerItem(
+                    "battery",
+                    BatteryItem::new,
+                    new Item.Properties().stacksTo(1)
+            );
 
     public static final DeferredItem<RadioModuleItem> MICROPHONE_MODULE =
             REGISTER.registerItem(
@@ -57,6 +68,8 @@ public final class WTItems {
         if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
             event.accept(WALKIE_TALKIE.get());
             event.accept(RADIO_STATION.get());
+            event.accept(TOOLBOX.get());
+            event.accept(BATTERY.get());
             event.accept(MICROPHONE_MODULE.get());
             event.accept(SPEAKER_MODULE.get());
             event.accept(DEBUG_MODULE_A.get());

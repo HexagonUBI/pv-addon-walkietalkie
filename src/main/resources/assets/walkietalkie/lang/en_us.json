@@ -4,22 +4,28 @@
   "item.walkietalkie.speaker_module": "Speaker Module",
   "item.walkietalkie.debug_module_a": "Debug Module A",
   "item.walkietalkie.debug_module_b": "Debug Module B",
+  "item.walkietalkie.battery": "Battery",
   "block.walkietalkie.radio_station": "Radio Station",
+  "block.walkietalkie.toolbox": "Toolbox",
 
   "tooltip.walkietalkie.frequency": "Frequency: %s",
   "tooltip.walkietalkie.on": "Radio: ON",
   "tooltip.walkietalkie.off": "Radio: OFF",
   "tooltip.walkietalkie.module_debug": "Debug module %s - no effect yet",
+  "tooltip.walkietalkie.battery_charge": "Charge: %s%%",
 
   "msg.walkietalkie.on": "Walkie-talkie turned ON",
   "msg.walkietalkie.off": "Walkie-talkie turned OFF",
 
   "screen.walkietalkie.title": "Radio Configuration",
+  "screen.walkietalkie.configuration": "Configuration",
   "screen.walkietalkie.frequency": "Frequency",
   "screen.walkietalkie.mhz": "MHz",
   "screen.walkietalkie.frequency_value": "Frequency: %s",
   "screen.walkietalkie.power": "Radio",
   "screen.walkietalkie.mic": "Mic",
+  "screen.walkietalkie.battery": "Charge: %s%%",
+  "screen.walkietalkie.battery_missing": "No battery",
 
   "activation.walkietalkie.name": "Walkie Talkie",
   "source_line.walkietalkie.name": "Walkie Talkie",

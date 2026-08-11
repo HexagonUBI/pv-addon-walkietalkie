@@ -155,6 +155,11 @@ public class WalkieTalkieItem extends Item {
     }
 
     @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+        return slotChanged || !oldStack.is(newStack.getItem());
+    }
+
+    @Override
     public boolean overrideOtherStackedOnMe(
             ItemStack stack,
             ItemStack carried,

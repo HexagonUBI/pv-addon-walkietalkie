@@ -1,5 +1,6 @@
 package com.example.walkietalkie.menu;
 
+import com.example.walkietalkie.item.BatteryItem;
 import com.example.walkietalkie.item.RadioModuleItem;
 import com.example.walkietalkie.registry.WTMenus;
 import com.example.walkietalkie.util.FrequencyUtil;
@@ -20,11 +21,16 @@ public final class RadioMenu extends AbstractContainerMenu {
     private static final int MOD2_X   = 152, MOD2_Y   = 54;
     private static final int MIC_X    = 26,  MIC_Y    = 36;
     private static final int SPEAK_X  = 26,  SPEAK_Y  = 54;
+    private static final int BATT_X   = 125, BATT_Y   = 36;
     private static final int INV_X    = 8,   INV_Y    = 84;
+
+    private static final int STATION_SLOTS = 4;
+    private static final int WALKIE_SLOTS  = 1;
 
     private final RadioContainerSource source;
     private final ContainerData data;
     private final boolean hasMicSlot;
+    private final int moduleSlotCount;
 
     public static RadioMenu forWalkie(int id, Inventory inv, ItemRadioSource src) {
         return new RadioMenu(WTMenus.WALKIE_MENU.get(), id, inv, src, src, false);
@@ -47,8 +53,8 @@ public final class RadioMenu extends AbstractContainerMenu {
         super(type, id);
         this.source = source;
         this.hasMicSlot = hasMicSlot;
+        this.moduleSlotCount = hasMicSlot ? STATION_SLOTS : WALKIE_SLOTS;
 
-        int moduleSlotCount = hasMicSlot ? 4 : 2;
         checkContainerSize(modules, moduleSlotCount);
 
         if (hasMicSlot) {
@@ -75,29 +81,33 @@ public final class RadioMenu extends AbstractContainerMenu {
                 }
             });
         } else {
-            addSlot(new Slot(modules, 1, MOD1_X, MOD1_Y) {
+            addSlot(new Slot(modules, 0, BATT_X, BATT_Y) {
                 @Override public boolean mayPlace(ItemStack s) {
-                    return s.getItem() instanceof RadioModuleItem m
-                            && m.getModuleType() == RadioModuleItem.Type.GENERIC;
+                    return s.getItem() instanceof BatteryItem;
                 }
-            });
-            addSlot(new Slot(modules, 2, MOD2_X, MOD2_Y) {
-                @Override public boolean mayPlace(ItemStack s) {
-                    return s.getItem() instanceof RadioModuleItem m
-                            && m.getModuleType() == RadioModuleItem.Type.GENERIC;
-                }
+                @Override public int getMaxStackSize() { return 1; }
             });
         }
         addPlayerSlots(inv, INV_X, INV_Y);
 
         this.data = new SimpleContainerData(6);
         addDataSlots(data);
+        pullFromSource();
+        data.set(4, FrequencyUtil.toDeci(FrequencyUtil.min()));
+        data.set(5, FrequencyUtil.toDeci(FrequencyUtil.max()));
+    }
+
+    private void pullFromSource() {
         data.set(0, FrequencyUtil.toDeci(source.getFrequency()));
         data.set(1, source.isEnabled()      ? 1 : 0);
         data.set(2, source.isMicActive()    ? 1 : 0);
         data.set(3, source.isOutputActive() ? 1 : 0);
-        data.set(4, FrequencyUtil.toDeci(FrequencyUtil.min()));
-        data.set(5, FrequencyUtil.toDeci(FrequencyUtil.max()));
+    }
+
+    @Override
+    public void broadcastChanges() {
+        if (source != RadioContainerSource.DUMMY) pullFromSource();
+        super.broadcastChanges();
     }
 
     private void addPlayerSlots(Inventory inv, int x, int y) {
@@ -109,6 +119,11 @@ public final class RadioMenu extends AbstractContainerMenu {
     }
 
     public boolean hasMicSlot()    { return hasMicSlot; }
+
+    public ItemStack getBatteryStack() {
+        return hasMicSlot ? ItemStack.EMPTY : this.slots.get(0).getItem();
+    }
+
     public float  getFrequency()   { return FrequencyUtil.fromDeci(data.get(0)); }
     public boolean isEnabled()     { return data.get(1) != 0; }
     public boolean isMicActive()   { return data.get(2) != 0; }
@@ -146,11 +161,10 @@ public final class RadioMenu extends AbstractContainerMenu {
         if (slot == null || !slot.hasItem()) return copy;
         ItemStack moving = slot.getItem();
         copy = moving.copy();
-        int moduleSlots = hasMicSlot ? 4 : 2;
-        if (index < moduleSlots) {
-            if (!this.moveItemStackTo(moving, moduleSlots, this.slots.size(), true)) return ItemStack.EMPTY;
+        if (index < moduleSlotCount) {
+            if (!this.moveItemStackTo(moving, moduleSlotCount, this.slots.size(), true)) return ItemStack.EMPTY;
         } else {
-            if (!this.moveItemStackTo(moving, 0, moduleSlots, false)) return ItemStack.EMPTY;
+            if (!this.moveItemStackTo(moving, 0, moduleSlotCount, false)) return ItemStack.EMPTY;
         }
         if (moving.isEmpty()) slot.set(ItemStack.EMPTY);
         else slot.setChanged();

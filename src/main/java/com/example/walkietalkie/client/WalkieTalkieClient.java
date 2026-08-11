@@ -41,6 +41,7 @@ public final class WalkieTalkieClient {
                     (stack, level, entity, seed) -> WalkieTalkieItem.isEnabled(stack) ? 1.0F : 0.0F
             );
             ItemBlockRenderTypes.setRenderLayer(WTBlocks.RADIO_STATION.get(), RenderType.cutout());
+            ItemBlockRenderTypes.setRenderLayer(WTBlocks.TOOLBOX.get(), RenderType.cutout());
         });
     }
 

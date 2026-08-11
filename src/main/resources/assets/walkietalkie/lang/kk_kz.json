@@ -3,21 +3,27 @@
   "item.walkietalkie.microphone_module": "Микрофон модулі",
   "item.walkietalkie.debug_module_a": "Модуль A-ны ақаусыздандыру",
   "item.walkietalkie.debug_module_b": "Модуль B-ны ақаусыздандыру",
+  "item.walkietalkie.battery": "Батарея",
   "block.walkietalkie.radio_station": "Радио станциясы",
+  "block.walkietalkie.toolbox": "Аспаптар жәшігі",
 
   "tooltip.walkietalkie.frequency": "Жиілік: %s",
   "tooltip.walkietalkie.on": "Уоки-токи: Қосқанда",
   "tooltip.walkietalkie.off": "Уоки-токи: Өшірулі",
   "tooltip.walkietalkie.module_debug": "Қателерді түзету модулі %s - Әзірге нәтиже жоқ",
+  "tooltip.walkietalkie.battery_charge": "Заряд: %s%%",
 
   "msg.walkietalkie.on": "Радио қосулы тұр",
   "msg.walkietalkie.off": "Радио өшірілген",
 
   "screen.walkietalkie.title": "Радионы орнату",
+  "screen.walkietalkie.configuration": "Баптау",
   "screen.walkietalkie.frequency": "Радиожиілік",
   "screen.walkietalkie.frequency_value": "Жиілік: %s",
   "screen.walkietalkie.power": "Воки-токи",
   "screen.walkietalkie.mic": "Mic",
+  "screen.walkietalkie.battery": "Заряд: %s%%",
+  "screen.walkietalkie.battery_missing": "Батарея жоқ",
 
   "activation.walkietalkie.name": "Воки-токи",
   "source_line.walkietalkie.name": "Воки-токи",

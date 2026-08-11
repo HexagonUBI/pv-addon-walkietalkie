@@ -23,5 +23,10 @@ public final class WTComponents {
                     .persistent(Codec.BOOL)
                     .networkSynchronized(ByteBufCodecs.BOOL));
 
+    public static final Supplier<DataComponentType<Integer>> CHARGE =
+            REGISTER.registerComponentType("charge", builder -> builder
+                    .persistent(Codec.INT)
+                    .networkSynchronized(ByteBufCodecs.VAR_INT));
+
     private WTComponents() {}
 }

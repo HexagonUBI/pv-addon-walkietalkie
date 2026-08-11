@@ -3,21 +3,27 @@
   "item.walkietalkie.microphone_module": "Módulo de micrófono",
   "item.walkietalkie.debug_module_a": "Módulo de depuración A",
   "item.walkietalkie.debug_module_b": "Módulo de depuración B",
+  "item.walkietalkie.battery": "Pila",
   "block.walkietalkie.radio_station": "Emisora de radio",
+  "block.walkietalkie.toolbox": "Caja de herramientas",
 
   "tooltip.walkietalkie.frequency": "Frecuencia: %s",
   "tooltip.walkietalkie.on": "Radio: encendida",
   "tooltip.walkietalkie.off": "Radio: apagada",
   "tooltip.walkietalkie.module_debug": "Módulo de depuración %s - todavía no se nota ningún efecto",
+  "tooltip.walkietalkie.battery_charge": "Carga: %s%%",
 
   "msg.walkietalkie.on": "El walkie-talkie está encendido",
   "msg.walkietalkie.off": "El walkie-talkie está apagado",
 
   "screen.walkietalkie.title": "Configuración de la radio",
+  "screen.walkietalkie.configuration": "Configuración",
   "screen.walkietalkie.frequency": "Frecuencia",
   "screen.walkietalkie.frequency_value": "Frecuencia: %s",
   "screen.walkietalkie.power": "Radio",
   "screen.walkietalkie.mic": "Mic",
+  "screen.walkietalkie.battery": "Carga: %s%%",
+  "screen.walkietalkie.battery_missing": "Sin pila",
 
   "activation.walkietalkie.name": "Walkie Talkie",
   "source_line.walkietalkie.name": "Walkie Talkie",

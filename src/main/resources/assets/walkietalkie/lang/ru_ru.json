@@ -4,22 +4,28 @@
   "item.walkietalkie.speaker_module": "Модуль динамика",
   "item.walkietalkie.debug_module_a": "Отладочный модуль A",
   "item.walkietalkie.debug_module_b": "Отладочный модуль B",
+  "item.walkietalkie.battery": "Батарейка",
   "block.walkietalkie.radio_station": "Радио Станция",
+  "block.walkietalkie.toolbox": "Ящик с инструментами",
 
   "tooltip.walkietalkie.frequency": "Частота: %s",
   "tooltip.walkietalkie.on": "Рация: Включен",
   "tooltip.walkietalkie.off": "Рация: Выключен",
   "tooltip.walkietalkie.module_debug": "Отладочный модуль %s - пока без эффекта",
+  "tooltip.walkietalkie.battery_charge": "Заряд: %s%%",
 
   "msg.walkietalkie.on": "Рация включена",
   "msg.walkietalkie.off": "Рация выключена",
 
   "screen.walkietalkie.title": "Настройка рации",
+  "screen.walkietalkie.configuration": "Настройка",
   "screen.walkietalkie.frequency": "Радио-частота",
   "screen.walkietalkie.mhz": "МГц",
   "screen.walkietalkie.frequency_value": "Частота: %s",
   "screen.walkietalkie.power": "Рация",
   "screen.walkietalkie.mic": "Mic",
+  "screen.walkietalkie.battery": "Заряд: %s%%",
+  "screen.walkietalkie.battery_missing": "Нет батарейки",
 
   "activation.walkietalkie.name": "Рация",
   "source_line.walkietalkie.name": "Рация",

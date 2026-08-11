@@ -2,6 +2,7 @@ package com.example.walkietalkie.registry;
 
 import com.example.walkietalkie.WalkieTalkieMod;
 import com.example.walkietalkie.block.RadioStationBlock;
+import com.example.walkietalkie.block.ToolboxBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
@@ -19,6 +20,15 @@ public final class WTBlocks {
                             .mapColor(MapColor.COLOR_BLACK)
                             .strength(2.0F, 6.0F)
                             .sound(SoundType.NETHERITE_BLOCK)
+                            .noOcclusion()
+            ));
+
+    public static final DeferredBlock<ToolboxBlock> TOOLBOX =
+            REGISTER.register("toolbox", () -> new ToolboxBlock(
+                    BlockBehaviour.Properties.of()
+                            .mapColor(MapColor.COLOR_RED)
+                            .strength(2.0F, 6.0F)
+                            .sound(SoundType.METAL)
                             .noOcclusion()
             ));
 
