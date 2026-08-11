@@ -70,7 +70,7 @@ public final class WalkieVoiceServerAddon implements AddonInitializer {
     private final Map<UUID, ServerBroadcastSource> proximityRelaySources = new ConcurrentHashMap<>();
     private final Map<UUID, Set<Integer>> proximityActiveFreqs = new ConcurrentHashMap<>();
 
-    private record SpeakStation(ServerLevel level, int deciFrequency) {}
+    private record SpeakStation(ServerLevel level, int deciFrequency, boolean interception) {}
 
     private volatile boolean speakEventSeen = false;
     private volatile boolean radioEffectBroken = false;
@@ -175,14 +175,14 @@ public final class WalkieVoiceServerAddon implements AddonInitializer {
     }
 
     public static void onStationUpdated(ServerLevel level, BlockPos pos,
-                                        int deciFrequency, boolean listen, boolean speak) {
+                                        int deciFrequency, boolean listen, boolean speak, boolean interception) {
         WalkieVoiceServerAddon inst = INSTANCE;
         if (inst == null) {
             LOGGER.warn("onStationUpdated({}) called but the addon isn't initialized yet - ignoring", pos);
             return;
         }
         try {
-            inst.updateStation(level, pos, deciFrequency, listen, speak);
+            inst.updateStation(level, pos, deciFrequency, listen, speak, interception);
         } catch (Exception e) {
             LOGGER.error("Failed to update station at {} (freq={}, listen={}, speak={})",
                     pos, deciFrequency, listen, speak, e);
@@ -200,7 +200,7 @@ public final class WalkieVoiceServerAddon implements AddonInitializer {
     }
 
     private void updateStation(ServerLevel level, BlockPos pos,
-                               int deciFrequency, boolean listen, boolean speak) {
+                               int deciFrequency, boolean listen, boolean speak, boolean interception) {
         ServerStaticSource oldSrc = stationListenSources.remove(pos);
         if (oldSrc != null) oldSrc.remove();
 
@@ -223,11 +223,29 @@ public final class WalkieVoiceServerAddon implements AddonInitializer {
             }
         }
 
-        if (speak) speakStations.put(pos, new SpeakStation(level, deciFrequency));
+        if (speak) speakStations.put(pos, new SpeakStation(level, deciFrequency, interception));
         else speakStations.remove(pos);
 
-        LOGGER.info("Station updated: pos={} dim={} freq={} listen={} speak={}",
-                pos, level.dimension().location(), FrequencyUtil.fromDeci(deciFrequency), listen, speak);
+        LOGGER.info("Station updated: pos={} dim={} freq={} listen={} speak={} interception={}",
+                pos, level.dimension().location(), FrequencyUtil.fromDeci(deciFrequency), listen, speak, interception);
+    }
+
+    private Set<Integer> interceptedFrequencies(ServerLevel level, BlockPos origin) {
+        double radius = WTServerConfig.INTERCEPTION_RADIUS.get();
+        if (radius <= 0.0) return Set.of();
+
+        net.minecraft.world.phys.Vec3 from = SableBridge.resolvePosition(level, origin);
+        double radiusSqr = radius * radius;
+
+        Set<Integer> freqs = new HashSet<>();
+        currentState().activeStations().forEach((pos, freq) -> {
+            if (pos.equals(origin)) return;
+            ServerLevel other = stationLevels.get(pos);
+            if (other != level) return;
+            net.minecraft.world.phys.Vec3 at = SableBridge.resolvePosition(other, pos);
+            if (from.distanceToSqr(at) <= radiusSqr) freqs.add(freq);
+        });
+        return freqs;
     }
 
     public static void refreshStationPositions() {
@@ -362,18 +380,26 @@ public final class WalkieVoiceServerAddon implements AddonInitializer {
             byte[] radioData = applyRadioEffect(speakerId, packet.getData());
 
             inRange.forEach((pos, station) -> {
-                int freq = station.deciFrequency();
+                Set<Integer> targets = new HashSet<>();
+                targets.add(station.deciFrequency());
+                if (station.interception()) targets.addAll(interceptedFrequencies(station.level(), pos));
+
                 Set<Integer> playerFreqs = proximityActiveFreqs.computeIfAbsent(speakerId, k -> ConcurrentHashMap.newKeySet());
-                if (playerFreqs.add(freq)) {
-                    LOGGER.info("{} started speaking into the station at {} (freq={})",
-                            speakerId, pos, FrequencyUtil.fromDeci(freq));
-                }
+                targets.forEach(freq -> {
+                    if (playerFreqs.add(freq)) {
+                        LOGGER.info("{} started speaking into the station at {} (freq={} interception={})",
+                                speakerId, pos, FrequencyUtil.fromDeci(freq), station.interception());
+                    }
+                });
+
+                Set<VoicePlayer> listeners = new HashSet<>();
+                targets.forEach(freq -> listeners.addAll(resolveListeners(freq, speakerId)));
 
                 ServerBroadcastSource src = proximityRelaySources.computeIfAbsent(
                         speakerId, k -> sourceLine.createBroadcastSource(false));
-                src.setPlayers(resolveListeners(freq, speakerId));
+                src.setPlayers(listeners);
                 src.sendAudioFrame(radioData, packet.getSequenceNumber(), info);
-                relayToStations(freq, radioData, packet.getSequenceNumber(), info, pos);
+                targets.forEach(freq -> relayToStations(freq, radioData, packet.getSequenceNumber(), info, pos));
             });
         } catch (Exception e) {
             LOGGER.error("onPlayerSpeak failed", e);

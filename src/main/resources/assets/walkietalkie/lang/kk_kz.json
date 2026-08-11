@@ -1,6 +1,7 @@
 {
   "item.walkietalkie.walkie_talkie": "Аналогтық воки-токи",
   "item.walkietalkie.microphone_module": "Микрофон модулі",
+  "item.walkietalkie.interception_module": "Ұстап алу модулі",
   "item.walkietalkie.debug_module_a": "Модуль A-ны ақаусыздандыру",
   "item.walkietalkie.debug_module_b": "Модуль B-ны ақаусыздандыру",
   "item.walkietalkie.battery": "Батарея",
@@ -12,6 +13,9 @@
   "tooltip.walkietalkie.off": "Уоки-токи: Өшірулі",
   "tooltip.walkietalkie.module_debug": "Қателерді түзету модулі %s - Әзірге нәтиже жоқ",
   "tooltip.walkietalkie.battery_charge": "Заряд: %s%%",
+  "tooltip.walkietalkie.interception.1": "Радиустағы барлық радиостанцияны басып алады.",
+  "tooltip.walkietalkie.interception.2": "Осы станцияның микрофоны қабылдағанның бәрі олардың жиіліктерінде естіледі, қалай бапталса да.",
+  "tooltip.walkietalkie.interception.3": "Радиостанцияның модуль ұясына салынады. Тарату үшін микрофон модулі керек.",
 
   "msg.walkietalkie.on": "Радио қосулы тұр",
   "msg.walkietalkie.off": "Радио өшірілген",
@@ -38,5 +42,7 @@
   "subtitles.walkietalkie.toggle_off": "Воки-токи өшіп қалды",
   "subtitles.walkietalkie.talk_start": "Воки-токиден бір шерту",
   "subtitles.walkietalkie.talk_stop": "Воки-токиден бір шерту",
-  "subtitles.walkietalkie.radio_static": "Таратқыш шуы"
+  "subtitles.walkietalkie.radio_static": "Таратқыш шуы",
+  "subtitles.walkietalkie.station_buzz": "Радиостанция гуілдейді",
+  "subtitles.walkietalkie.station_button": "Тумблер сырт етеді"
 }

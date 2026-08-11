@@ -2,6 +2,7 @@
   "item.walkietalkie.walkie_talkie": "Аналоговая Рация",
   "item.walkietalkie.microphone_module": "Микрофонный модуль",
   "item.walkietalkie.speaker_module": "Модуль динамика",
+  "item.walkietalkie.interception_module": "Модуль перехвата",
   "item.walkietalkie.debug_module_a": "Отладочный модуль A",
   "item.walkietalkie.debug_module_b": "Отладочный модуль B",
   "item.walkietalkie.battery": "Батарейка",
@@ -13,6 +14,9 @@
   "tooltip.walkietalkie.off": "Рация: Выключен",
   "tooltip.walkietalkie.module_debug": "Отладочный модуль %s - пока без эффекта",
   "tooltip.walkietalkie.battery_charge": "Заряд: %s%%",
+  "tooltip.walkietalkie.interception.1": "Перехватывает все радиостанции в радиусе.",
+  "tooltip.walkietalkie.interception.2": "Всё, что ловит микрофон этой станции, вещается на их частотах, независимо от их настройки.",
+  "tooltip.walkietalkie.interception.3": "Ставится в слот модуля радиостанции. Для передачи нужен микрофонный модуль.",
 
   "msg.walkietalkie.on": "Рация включена",
   "msg.walkietalkie.off": "Рация выключена",
@@ -43,5 +47,7 @@
   "subtitles.walkietalkie.toggle_off": "Рация выключается",
   "subtitles.walkietalkie.talk_start": "Щелчок рации",
   "subtitles.walkietalkie.talk_stop": "Щелчок рации",
-  "subtitles.walkietalkie.radio_static": "Шум эфира"
+  "subtitles.walkietalkie.radio_static": "Шум эфира",
+  "subtitles.walkietalkie.station_buzz": "Радиостанция гудит",
+  "subtitles.walkietalkie.station_button": "Щелчок тумблера"
 }

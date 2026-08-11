@@ -50,6 +50,13 @@ public final class WTItems {
                     new Item.Properties().stacksTo(1)
             );
 
+    public static final DeferredItem<RadioModuleItem> INTERCEPTION_MODULE =
+            REGISTER.registerItem(
+                    "interception_module",
+                    p -> new RadioModuleItem(p, RadioModuleItem.Type.INTERCEPTION, null),
+                    new Item.Properties().stacksTo(1)
+            );
+
     public static final DeferredItem<RadioModuleItem> DEBUG_MODULE_A =
             REGISTER.registerItem(
                     "debug_module_a",
@@ -72,6 +79,7 @@ public final class WTItems {
             event.accept(BATTERY.get());
             event.accept(MICROPHONE_MODULE.get());
             event.accept(SPEAKER_MODULE.get());
+            event.accept(INTERCEPTION_MODULE.get());
             event.accept(DEBUG_MODULE_A.get());
             event.accept(DEBUG_MODULE_B.get());
         }

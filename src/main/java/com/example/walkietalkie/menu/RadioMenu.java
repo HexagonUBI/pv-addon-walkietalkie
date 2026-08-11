@@ -70,14 +70,12 @@ public final class RadioMenu extends AbstractContainerMenu {
             });
             addSlot(new Slot(modules, 2, MOD1_X, MOD1_Y) {
                 @Override public boolean mayPlace(ItemStack s) {
-                    return s.getItem() instanceof RadioModuleItem m
-                            && m.getModuleType() == RadioModuleItem.Type.GENERIC;
+                    return s.getItem() instanceof RadioModuleItem m && m.fitsModuleSlot();
                 }
             });
             addSlot(new Slot(modules, 3, MOD2_X, MOD2_Y) {
                 @Override public boolean mayPlace(ItemStack s) {
-                    return s.getItem() instanceof RadioModuleItem m
-                            && m.getModuleType() == RadioModuleItem.Type.GENERIC;
+                    return s.getItem() instanceof RadioModuleItem m && m.fitsModuleSlot();
                 }
             });
         } else {

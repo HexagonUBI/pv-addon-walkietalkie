@@ -11,6 +11,7 @@ public final class WTServerConfig {
     public static final ModConfigSpec.DoubleValue STATION_MIC_RANGE;
     public static final ModConfigSpec.BooleanValue STATION_RADIO_EFFECT;
     public static final ModConfigSpec.BooleanValue STATION_SHOW_ICON;
+    public static final ModConfigSpec.DoubleValue INTERCEPTION_RADIUS;
     public static final ModConfigSpec.BooleanValue DEBUG_LOGGING;
 
     static {
@@ -54,6 +55,15 @@ public final class WTServerConfig {
                 .comment("Show the Plasmo Voice speaker icon floating above a Radio Station",
                         "while it is playing audio. Turn this off for a more immersive look.")
                 .define("show-voice-icon", false);
+
+        INTERCEPTION_RADIUS = builder
+                .comment("Range (in blocks) of the Interception Module. A Radio Station holding one",
+                        "forces whatever its microphone picks up onto the frequency of every other",
+                        "Radio Station within this distance, ignoring what those stations are tuned to.",
+                        "Distances are measured in real world space, so stations riding a Sable",
+                        "sub-level are compared where they actually are, not where they are stored.",
+                        "Set to 0 to disable the module entirely.")
+                .defineInRange("interception-radius", 100.0, 0.0, 1024.0);
 
         builder.pop();
 

@@ -1,6 +1,7 @@
 {
   "item.walkietalkie.walkie_talkie": "Walkie-talkie analógico",
   "item.walkietalkie.microphone_module": "Módulo de micrófono",
+  "item.walkietalkie.interception_module": "Módulo de interceptación",
   "item.walkietalkie.debug_module_a": "Módulo de depuración A",
   "item.walkietalkie.debug_module_b": "Módulo de depuración B",
   "item.walkietalkie.battery": "Pila",
@@ -12,6 +13,9 @@
   "tooltip.walkietalkie.off": "Radio: apagada",
   "tooltip.walkietalkie.module_debug": "Módulo de depuración %s - todavía no se nota ningún efecto",
   "tooltip.walkietalkie.battery_charge": "Carga: %s%%",
+  "tooltip.walkietalkie.interception.1": "Secuestra todas las emisoras de radio en el radio de alcance.",
+  "tooltip.walkietalkie.interception.2": "Lo que capte el micrófono de esta emisora suena en sus frecuencias, sea cual sea su sintonía.",
+  "tooltip.walkietalkie.interception.3": "Se coloca en la ranura de módulo de una emisora. Necesita un módulo de micrófono para transmitir.",
 
   "msg.walkietalkie.on": "El walkie-talkie está encendido",
   "msg.walkietalkie.off": "El walkie-talkie está apagado",
@@ -38,5 +42,7 @@
   "subtitles.walkietalkie.toggle_off": "El walkie-talkie se apaga",
   "subtitles.walkietalkie.talk_start": "La radio se enciende",
   "subtitles.walkietalkie.talk_stop": "La radio se apaga",
-  "subtitles.walkietalkie.radio_static": "Ruido de radio"
+  "subtitles.walkietalkie.radio_static": "Ruido de radio",
+  "subtitles.walkietalkie.station_buzz": "La emisora zumba",
+  "subtitles.walkietalkie.station_button": "Clic del interruptor"
 }

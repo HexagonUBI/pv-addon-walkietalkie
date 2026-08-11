@@ -17,6 +17,9 @@ public final class WTSounds {
     public static final DeferredHolder<SoundEvent, SoundEvent> TALK_START = register("talk_start");
     public static final DeferredHolder<SoundEvent, SoundEvent> TALK_STOP = register("talk_stop");
     public static final DeferredHolder<SoundEvent, SoundEvent> RADIO_STATIC = register("radio_static");
+    public static final DeferredHolder<SoundEvent, SoundEvent> STATION_BUZZ = register("station_buzz");
+    public static final DeferredHolder<SoundEvent, SoundEvent> STATION_BUTTON_ON = register("station_button_on");
+    public static final DeferredHolder<SoundEvent, SoundEvent> STATION_BUTTON_OFF = register("station_button_off");
 
     private static DeferredHolder<SoundEvent, SoundEvent> register(String name) {
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath(WalkieTalkieMod.MOD_ID, name);

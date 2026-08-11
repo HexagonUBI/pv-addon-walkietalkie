@@ -72,6 +72,10 @@ public final class RadioState {
         activeStations.remove(pos);
     }
 
+    public Map<BlockPos, Integer> activeStations() {
+        return java.util.Collections.unmodifiableMap(activeStations);
+    }
+
     public Set<BlockPos> stationsForFrequency(int deciFrequency) {
         Set<BlockPos> result = new HashSet<>();
         activeStations.forEach((pos, freq) -> {

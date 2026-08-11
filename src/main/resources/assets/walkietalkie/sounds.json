@@ -23,5 +23,22 @@
         "stream": true
       }
     ]
+  },
+  "station_buzz": {
+    "subtitle": "subtitles.walkietalkie.station_buzz",
+    "sounds": [
+      {
+        "name": "walkietalkie:static/radio/power-buzz",
+        "stream": true
+      }
+    ]
+  },
+  "station_button_on": {
+    "subtitle": "subtitles.walkietalkie.station_button",
+    "sounds": [ "walkietalkie:clicks/click02" ]
+  },
+  "station_button_off": {
+    "subtitle": "subtitles.walkietalkie.station_button",
+    "sounds": [ "walkietalkie:clicks/click02-2" ]
   }
 }

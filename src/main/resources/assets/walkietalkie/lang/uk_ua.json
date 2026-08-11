@@ -1,6 +1,7 @@
 {
   "item.walkietalkie.walkie_talkie": "Аналогова Рація",
   "item.walkietalkie.microphone_module": "Мікрофонний модуль",
+  "item.walkietalkie.interception_module": "Модуль перехоплення",
   "item.walkietalkie.debug_module_a": "Модуль налагодження A",
   "item.walkietalkie.debug_module_b": "Модуль налагодження B",
   "item.walkietalkie.battery": "Батарейка",
@@ -12,6 +13,9 @@
   "tooltip.walkietalkie.off": "Рація: Вимкнено",
   "tooltip.walkietalkie.module_debug": "Модуль налагодження %s - пока без эффекта",
   "tooltip.walkietalkie.battery_charge": "Заряд: %s%%",
+  "tooltip.walkietalkie.interception.1": "Перехоплює всі радіостанції в радіусі.",
+  "tooltip.walkietalkie.interception.2": "Усе, що ловить мікрофон цієї станції, лунає на їхніх частотах, попри їхні налаштування.",
+  "tooltip.walkietalkie.interception.3": "Встановлюється в слот модуля радіостанції. Для передачі потрібен мікрофонний модуль.",
 
   "msg.walkietalkie.on": "Рація увімкнена",
   "msg.walkietalkie.off": "Рація вимкнена",
@@ -38,5 +42,7 @@
   "subtitles.walkietalkie.toggle_off": "Рація вимикається",
   "subtitles.walkietalkie.talk_start": "Клацання рації",
   "subtitles.walkietalkie.talk_stop": "Клацання рації",
-  "subtitles.walkietalkie.radio_static": "Шум ефіру"
+  "subtitles.walkietalkie.radio_static": "Шум ефіру",
+  "subtitles.walkietalkie.station_buzz": "Радіостанція гуде",
+  "subtitles.walkietalkie.station_button": "Клацання тумблера"
 }

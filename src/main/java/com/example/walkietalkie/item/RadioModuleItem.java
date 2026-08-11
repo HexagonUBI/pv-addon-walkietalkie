@@ -10,7 +10,7 @@ import java.util.List;
 
 public class RadioModuleItem extends Item {
 
-    public enum Type { MIC, SPEAKER, GENERIC }
+    public enum Type { MIC, SPEAKER, GENERIC, INTERCEPTION }
 
     private final Type type;
     private final String debugLabel;
@@ -28,9 +28,19 @@ public class RadioModuleItem extends Item {
     public Type getModuleType() { return type; }
     public boolean isMicrophone() { return type == Type.MIC; }
     public boolean isSpeaker()    { return type == Type.SPEAKER; }
+    public boolean isInterception(){ return type == Type.INTERCEPTION; }
+
+    public boolean fitsModuleSlot() {
+        return type == Type.GENERIC || type == Type.INTERCEPTION;
+    }
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext ctx, List<Component> lines, TooltipFlag flag) {
+        if (type == Type.INTERCEPTION) {
+            lines.add(Component.translatable("tooltip.walkietalkie.interception.1").withStyle(ChatFormatting.GOLD));
+            lines.add(Component.translatable("tooltip.walkietalkie.interception.2").withStyle(ChatFormatting.GRAY));
+            lines.add(Component.translatable("tooltip.walkietalkie.interception.3").withStyle(ChatFormatting.DARK_GRAY));
+        }
         if (debugLabel != null) {
             lines.add(Component.translatable("tooltip.walkietalkie.module_debug", debugLabel)
                     .withStyle(ChatFormatting.DARK_GRAY));

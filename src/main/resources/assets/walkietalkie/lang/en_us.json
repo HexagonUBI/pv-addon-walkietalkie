@@ -2,6 +2,7 @@
   "item.walkietalkie.walkie_talkie": "Analog Walkie Talkie",
   "item.walkietalkie.microphone_module": "Microphone Module",
   "item.walkietalkie.speaker_module": "Speaker Module",
+  "item.walkietalkie.interception_module": "Interception Module",
   "item.walkietalkie.debug_module_a": "Debug Module A",
   "item.walkietalkie.debug_module_b": "Debug Module B",
   "item.walkietalkie.battery": "Battery",
@@ -13,6 +14,9 @@
   "tooltip.walkietalkie.off": "Radio: OFF",
   "tooltip.walkietalkie.module_debug": "Debug module %s - no effect yet",
   "tooltip.walkietalkie.battery_charge": "Charge: %s%%",
+  "tooltip.walkietalkie.interception.1": "Hijacks every Radio Station in range.",
+  "tooltip.walkietalkie.interception.2": "Whatever this station's microphone picks up is forced onto their frequencies, whatever they are tuned to.",
+  "tooltip.walkietalkie.interception.3": "Fit into a Radio Station's module slot. Needs a Microphone Module to transmit.",
 
   "msg.walkietalkie.on": "Walkie-talkie turned ON",
   "msg.walkietalkie.off": "Walkie-talkie turned OFF",
@@ -43,5 +47,7 @@
   "subtitles.walkietalkie.toggle_off": "Walkie-talkie powers off",
   "subtitles.walkietalkie.talk_start": "Radio clicks on",
   "subtitles.walkietalkie.talk_stop": "Radio clicks off",
-  "subtitles.walkietalkie.radio_static": "Radio static"
+  "subtitles.walkietalkie.radio_static": "Radio static",
+  "subtitles.walkietalkie.station_buzz": "Radio Station hums",
+  "subtitles.walkietalkie.station_button": "Switch clicks"
 }

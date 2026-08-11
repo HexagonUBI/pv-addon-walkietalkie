@@ -4,8 +4,11 @@ import com.example.walkietalkie.WalkieTalkieMod;
 import com.example.walkietalkie.item.BatteryItem;
 import com.example.walkietalkie.menu.RadioMenu;
 import com.example.walkietalkie.net.payload.RadioMenuUpdateC2S;
+import com.example.walkietalkie.registry.WTSounds;
 import com.example.walkietalkie.util.FrequencyUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -262,8 +265,18 @@ public class RadioScreen extends AbstractContainerScreen<RadioMenu> {
             if (inTrack(mx, my)) { dragging = true; sendFreq(freqFromSliderX(mx)); return true; }
             if (inArrowL(mx, my)) { nudge(-1); return true; }
             if (inArrowR(mx, my)) { nudge(+1); return true; }
-            if (inMicBtn(mx, my)) { send(menu.getFrequency(), menu.isEnabled(), !menu.isMicActive(), menu.isOutputActive()); return true; }
-            if (inSpkBtn(mx, my)) { send(menu.getFrequency(), menu.isEnabled(), menu.isMicActive(), !menu.isOutputActive()); return true; }
+            if (inMicBtn(mx, my)) {
+                boolean now = !menu.isMicActive();
+                playStationButton(now);
+                send(menu.getFrequency(), menu.isEnabled(), now, menu.isOutputActive());
+                return true;
+            }
+            if (inSpkBtn(mx, my)) {
+                boolean now = !menu.isOutputActive();
+                playStationButton(now);
+                send(menu.getFrequency(), menu.isEnabled(), menu.isMicActive(), now);
+                return true;
+            }
             if (inPowerBtn(mx, my)) { send(menu.getFrequency(), !menu.isEnabled(), menu.isMicActive(), menu.isOutputActive()); return true; }
         }
         return super.mouseClicked(mx, my, btn);
@@ -282,6 +295,11 @@ public class RadioScreen extends AbstractContainerScreen<RadioMenu> {
     public boolean mouseReleased(double mx, double my, int btn) {
         if (btn == 0) dragging = false;
         return super.mouseReleased(mx, my, btn);
+    }
+
+    private void playStationButton(boolean on) {
+        Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(
+                (on ? WTSounds.STATION_BUTTON_ON : WTSounds.STATION_BUTTON_OFF).get(), 1.0F));
     }
 
     private void nudge(int dir) {
